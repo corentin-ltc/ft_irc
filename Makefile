@@ -4,15 +4,14 @@ NAME = ircserv
 
 CC = c++
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror # errors
+FLAGS += -std=c++98 # c++ version 
+FLAGS += -Wshadow -pedantic # syntax helper (can remove)
+FLAGS += -g # opti
 
-EXTRAFLAGS = -std=c++98
-
-INCLUDES =	includes \
-			${foreach lib, ${LIBS}, ${lib} ${lib}/includes}
+INCLUDES =	includes
 
 ######################## SOURCES ########################
-
 
 COMMANDS =	
 
@@ -33,6 +32,9 @@ OBJS_DIR = objs/
 
 OBJS = ${addprefix ${OBJS_DIR}, ${SRCS_NAMES:.cpp=.o}}
 
+# NOTE: allows dependency during compilation, .o will recompile on change
+INCLUDES = includes/Client.hpp includes/ft_irc
+
 ######################## BASIC RULES ########################
 
 all : 
@@ -42,11 +44,9 @@ re : fclean
 	${MAKE} all
 
 clean :
-	${foreach lib, ${LIBS}, ${MAKE} clean -C ${lib}}
 	rm -rf ${OBJS_DIR}
 
 fclean : clean
-	${foreach lib, ${LIBS}, ${MAKE} fclean -C ${lib}}
 	rm -f ${NAME}
 
 ######################## COMPILATION ########################
