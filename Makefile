@@ -16,11 +16,14 @@ INCLUDES =	includes \
 
 COMMANDS =	
 
-SERVER =	
+SERVER = serverLoop.cpp
+
+CLIENT = Client.cpp
 	
 SRCS_NAMES =	main.cpp \
 				${addprefix commands/, ${COMMANDS}} \
-				${addprefix server/, ${SERVER}}
+				${addprefix server/, ${SERVER}} \
+				${addprefix client/, ${CLIENT}}
 
 SRCS_DIR = srcs/
 
@@ -54,6 +57,7 @@ ${NAME} : ${OBJS_DIR} ${OBJS}
 
 ${OBJS_DIR} :
 	mkdir $@
+	mkdir $@client
 	mkdir $@commands
 	mkdir $@server
 
