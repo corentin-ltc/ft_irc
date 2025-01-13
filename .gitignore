@@ -1,0 +1,5 @@
+ircserv
+objs
+compile_commands.json
+.*
+!.gitignore

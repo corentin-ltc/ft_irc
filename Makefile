@@ -6,7 +6,7 @@ CC = c++
 
 FLAGS = -Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
-FLAGS += -Wshadow -pedantic # syntax helper (can remove)
+FLAGS += -Wshadow #-pedantic # syntax helper (can remove)
 FLAGS += -g # opti
 
 INCLUDES =	includes
@@ -32,10 +32,12 @@ OBJS_DIR = objs/
 
 OBJS = ${addprefix ${OBJS_DIR}, ${SRCS_NAMES:.cpp=.o}}
 
-# NOTE: allows dependency during compilation, .o will recompile on change
-INCLUDES = includes/Client.hpp includes/ft_irc
+#NOTE: allows dependency during compilation, .o will recompile on change
+HEADERS = includes/Client.hpp includes/ft_irc.hpp
 
 ######################## BASIC RULES ########################
+
+#TODO: add phony
 
 all : 
 	${MAKE} -j ${NAME}

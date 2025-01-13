@@ -2,19 +2,19 @@
 
 Client::Client(int fd) : socketFd(fd), authentificated(false)
 {
-
 }
 
 std::string Client::getNickname()
 {
-    return nickname;
+	return nickname;
 }
 
 bool Client::isAuthentificated()
 {
-    return authentificated;
+	(void)socketFd;
+	return authentificated;
 }
 void Client::authentificate()
 {
-    authentificated = true;
+	authentificated = true;
 }
