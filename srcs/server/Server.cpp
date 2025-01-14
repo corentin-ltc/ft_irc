@@ -1,4 +1,9 @@
 #include "Server.hpp"
+#include <fcntl.h>		// fcntl()
+#include <iostream>		// cout, endl
+#include <stdexcept>	// runtime_error()
+#include <sys/socket.h> // socket()
+#include <unistd.h>		// read
 
 Server::Server() : port(0), password(""), server_socket(-1)
 {
@@ -47,14 +52,21 @@ void Server::run()
 {
 	if (-1 == server_socket)
 		throw std::runtime_error("Server is not initialized");
-	// TODO: make a pollfd
 	// NOTE: socket becomes passive (listen)
 	if (-1 == listen(server_socket, 5))
 		throw std::runtime_error("listen");
 	std::cout << "Server listening on port " << port << " (server_socket: " << server_socket << ")" << std::endl;
 
+	// NOTE: make a pollfd
+	struct pollfd serv_pfd;
+	serv_pfd.fd = server_socket;
+	serv_pfd.events = POLLIN; // Triggered when there is a data to read
+	serv_pfd.revents = 0;
+	fds.push_back(serv_pfd); // add the server pollfd to the vector
+
 	// TODO: loop and wait for pollfd EVENTS
 	// NOTE: if serv -> new client, if not -> client message
+	// temporary code
 	while (1)
 	{
 		int client_socket = accept(server_socket, NULL, NULL);
