@@ -42,14 +42,11 @@ int main(void)
 
 	// TODO: loop and wait for pollfd EVENTS
 	// NOTE: if serv -> new client, if not -> client message
-	int client_socket = accept(server_socket, NULL, NULL);
-	std::cout << "Accepted client " << client_socket << std::endl;
-
-	char *buffer[1024];
-	ssize_t read_count = read(client_socket, &buffer, sizeof(buffer));
-	if (-1 == read_count)
-		throw std::runtime_error("read");
-	buffer[read_count] = 0;
-	std::cout << "Read: " << *buffer << std::endl;
+	while (1)
+	{
+		int client_socket = accept(server_socket, NULL, NULL);
+		if (client_socket != -1)
+			std::cout << "Accepted client " << client_socket << std::endl;
+	}
 	return (0);
 }
