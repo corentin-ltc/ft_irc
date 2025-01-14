@@ -5,6 +5,8 @@
 #include <sys/socket.h> // socket()
 #include <unistd.h>		// read
 
+bool Server::signal = false;
+
 Server::Server() : port(0), password(""), server_socket(-1)
 {
 	std::cout << "[Server default constructor called]" << std::endl;
@@ -46,16 +48,6 @@ void Server::initServer()
 	if (-1 == bind(server_socket, reinterpret_cast<struct sockaddr *>(&server_addr), sizeof(server_addr)))
 		throw std::runtime_error("bind");
 	std::cout << "Server initialized" << std::endl;
-}
-
-void Server::run()
-{
-	if (-1 == server_socket)
-		throw std::runtime_error("Server is not initialized");
-	// NOTE: socket becomes passive (listen)
-	if (-1 == listen(server_socket, 5))
-		throw std::runtime_error("listen");
-	std::cout << "Server listening on port " << port << " (server_socket: " << server_socket << ")" << std::endl;
 
 	// NOTE: make a pollfd
 	struct pollfd serv_pfd;
@@ -63,14 +55,50 @@ void Server::run()
 	serv_pfd.events = POLLIN; // Triggered when there is a data to read
 	serv_pfd.revents = 0;
 	fds.push_back(serv_pfd); // add the server pollfd to the vector
+}
 
+void Server::run()
+{
+	// NOTE: socket becomes passive (listen)
+	if (-1 == listen(server_socket, 5))
+		throw std::runtime_error("listen");
+	std::cout << "Server listening on port " << port << " (server_socket: " << server_socket << ")" << std::endl;
+
+	std::cout << "fds count: " << this->fds.size() << std::endl;
 	// TODO: loop and wait for pollfd EVENTS
-	// NOTE: if serv -> new client, if not -> client message
-	// temporary code
-	while (1)
+	while (this->signal == false)
 	{
-		int client_socket = accept(server_socket, NULL, NULL);
-		if (client_socket != -1)
-			std::cout << "Accepted client " << client_socket << std::endl;
+		if (-1 == poll(&fds[0], this->fds.size(), -1))
+			throw std::runtime_error("poll");
+		// loop through fds and to check if an event triggered
+		for (size_t i = 0; i < fds.size(); i++) //-> check all file descriptors
+		{
+			// NOTE: if serv -> new client, if not -> client message
+			if (fds[i].revents) //-> check if there is data to read
+			{
+				if (fds[i].fd == server_socket)
+					acceptNewClient();
+				else
+					std::cout << "Handle registered client\n";
+			}
+		}
 	}
+}
+
+void Server::acceptNewClient()
+{
+	struct pollfd client_pfd;
+	int client_socket;
+
+	// NOTE: accept client socket
+	client_socket = accept(server_socket, NULL, NULL);
+	if (-1 == client_socket)
+		throw std::runtime_error("accept");
+	std::cout << "Client " << client_socket << " connected" << std::endl;
+	// TODO: make Client and add to Clients list
+	// NOTE: make pollfd and add to fds list
+	client_pfd.fd = client_socket;
+	client_pfd.events = POLLIN;
+	client_pfd.revents = 0;
+	fds.push_back(client_pfd); // add the server pollfd to the vector
 }

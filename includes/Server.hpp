@@ -16,6 +16,7 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
+	static bool signal;
 
   public: // constructors
 	Server();
@@ -27,6 +28,7 @@ class Server
 	void run();
 
   private: // helpers
+	void acceptNewClient();
 };
 
 #endif
