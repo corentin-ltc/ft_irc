@@ -145,6 +145,9 @@ void Server::disconnectAll()
 	for (size_t i = 0; i < fds.size(); i++)
 	{
 		close(fds[i].fd);
-		std::cout << "Client " << fds[i].fd << RED << " disconnected" << WHI << std::endl;
+		if (fds[i].fd == server_socket)
+			std::cout << RED << "Shuting the server down" << WHI << std::endl;
+		else
+			std::cout << "Client " << fds[i].fd << RED << " disconnected" << WHI << std::endl;
 	}
 }
