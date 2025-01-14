@@ -9,6 +9,9 @@
 
 class Server
 {
+  public:
+	static bool signal;
+
   private:
 	unsigned short port;
 	std::string password;
@@ -16,7 +19,6 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
-	static bool signal;
 
   public: // constructors
 	Server();
@@ -31,6 +33,7 @@ class Server
 	void acceptNewClient();
 	void handleClient(int client_socket);
 	void disconnectClient(int client_socket);
+	void disconnectAll();
 };
 
 #endif
