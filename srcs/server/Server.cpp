@@ -1,7 +1,25 @@
 #include "Server.hpp"
 
-Server::Server(unsigned short port, std::string password) : port(port), password(password)
+Server::Server() : port(0), password(""), server_socket(-1)
 {
+	std::cout << "[Server default constructor called]" << std::endl;
+}
+
+Server::Server(unsigned short port, std::string password) : port(port), password(password), server_socket(-1)
+{
+	std::cout << "[Server init constructor called]" << std::endl;
+	this->initServer();
+}
+
+Server::~Server()
+{
+	std::cout << "[Server destructor called]" << std::endl;
+	// TODO: close every fds
+}
+void Server::initServer()
+{
+	if (this->port == 0)
+		throw std::runtime_error("No port specified");
 	// NOTE: serv_socket
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (-1 == server_socket)
@@ -22,10 +40,13 @@ Server::Server(unsigned short port, std::string password) : port(port), password
 	// NOTE: bind both
 	if (-1 == bind(server_socket, reinterpret_cast<struct sockaddr *>(&server_addr), sizeof(server_addr)))
 		throw std::runtime_error("bind");
+	std::cout << "Server initialized" << std::endl;
 }
 
 void Server::run()
 {
+	if (-1 == server_socket)
+		throw std::runtime_error("Server is not initialized");
 	// TODO: make a pollfd
 	// NOTE: socket becomes passive (listen)
 	if (-1 == listen(server_socket, 5))

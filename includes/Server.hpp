@@ -17,9 +17,12 @@ class Server
 	std::vector<struct pollfd> fds;
 
   public: // constructors
+	Server();
 	Server(unsigned short port, std::string password);
+	~Server();
 
   public: // methods
+	void initServer();
 	void run();
 
   private: // helpers
