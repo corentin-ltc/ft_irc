@@ -122,7 +122,17 @@ void Server::handleClient(int client_socket)
 		return;
 	}
 	buffer[bytes_read] = 0;
-	std::cout << client_socket << " sent: " << buffer;
+	// TODO: handle the client input here
+	handleClientInput(client_socket, buffer);
+}
+
+void Server::handleClientInput(int client_socket, std::string input)
+{
+	// TODO: send message correctly
+	if (input[0] && input[0] != '/')
+		std::cout << client_socket << " sent: " << input;
+	else
+		std::cout << client_socket << " used a command " << input;
 }
 
 void Server::disconnectClient(int client_socket)

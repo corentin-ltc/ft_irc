@@ -34,6 +34,7 @@ class Server
 	void handleClient(int client_socket);
 	void disconnectClient(int client_socket);
 	void disconnectAll();
+	void handleClientInput(int client_socket, std::string input);
 };
 
 #endif
