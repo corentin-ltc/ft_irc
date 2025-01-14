@@ -2,7 +2,7 @@
 
 Client::Client(int fd) : socketFd(fd), authentificated(false)
 {
-
+    (void)socketFd;
 }
 
 std::string Client::getNickname()

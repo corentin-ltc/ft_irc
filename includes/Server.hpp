@@ -5,4 +5,4 @@ class Server
         int port;
         int createServerSocket();
         
-}
+};

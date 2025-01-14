@@ -16,7 +16,9 @@ INCLUDES =	includes \
 
 COMMANDS =	
 
-SERVER = serverLoop.cpp
+SERVER =	serverLoop.cpp \
+			createServerSocket.cpp
+		
 
 CLIENT = Client.cpp
 	

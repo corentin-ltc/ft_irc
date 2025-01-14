@@ -29,6 +29,11 @@ int Server::createServerSocket()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
-
+    while(1)
+    {
+      int client_socket = accept(serverFd, NULL, NULL);
+		  if (client_socket != -1)
+			  std::cout << "Accepted client " << client_socket << std::endl;
+    }
 
 }
