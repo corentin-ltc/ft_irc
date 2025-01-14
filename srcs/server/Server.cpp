@@ -118,7 +118,11 @@ void Server::handleClient(int client_socket)
 		return;
 	}
 	buffer[bytes_read] = 0;
-	std::cout << "received : " << buffer;
+	std::string message;
+	message.append(buffer);
+	if (!message.empty() && message[message.size() - 1] == '\r')
+		message.erase(message.size() - 1);
+	std::cout << "received : " << message;
 }
 
 void Server::disconnectClient(int client_socket)
