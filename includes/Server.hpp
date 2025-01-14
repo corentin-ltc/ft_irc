@@ -29,6 +29,8 @@ class Server
 
   private: // helpers
 	void acceptNewClient();
+	void handleClient(int client_socket);
+	void disconnectClient(int client_socket);
 };
 
 #endif

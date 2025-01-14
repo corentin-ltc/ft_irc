@@ -79,7 +79,7 @@ void Server::run()
 				if (fds[i].fd == server_socket)
 					acceptNewClient();
 				else
-					std::cout << "Handle registered client\n";
+					handleClient(fds[i].fd);
 			}
 		}
 	}
@@ -101,4 +101,39 @@ void Server::acceptNewClient()
 	client_pfd.events = POLLIN;
 	client_pfd.revents = 0;
 	fds.push_back(client_pfd); // add the server pollfd to the vector
+}
+
+// TODO: pass client object
+void Server::handleClient(int client_socket)
+{
+	char buffer[1024];
+	std::cout << client_socket << " triggered an event" << std::endl;
+
+	int bytes_read = read(client_socket, &buffer, sizeof(buffer));
+	if (-1 == bytes_read)
+		throw std::runtime_error("read");
+	if (0 == bytes_read)
+	{
+		disconnectClient(client_socket);
+		return;
+	}
+	buffer[bytes_read] = 0;
+	std::cout << "received : " << buffer;
+}
+
+void Server::disconnectClient(int client_socket)
+{
+	// TODO: remove from clients vector
+	// remove the fd from the fds vector
+	// closes the fd
+	for (size_t i = 0; i < fds.size(); i++)
+	{
+		if (fds[i].fd == client_socket)
+		{
+			fds.erase(fds.begin() + i);
+			close(client_socket);
+			std::cout << "Client " << client_socket << " disconnected." << std::endl;
+			break;
+		}
+	}
 }
