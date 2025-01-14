@@ -1,8 +1,9 @@
 #include "Server.hpp"
 #include "ft_irc.hpp"
 #include <csignal>
-#include <fcntl.h>		// fcntl()
-#include <iostream>		// cout, endl
+#include <fcntl.h>	// fcntl()
+#include <iostream> // cout, endl
+#include <map>
 #include <stdexcept>	// runtime_error()
 #include <sys/socket.h> // socket()
 #include <unistd.h>		// read
@@ -107,6 +108,7 @@ void Server::acceptNewClient()
 	client_pfd.events = POLLIN;
 	client_pfd.revents = 0;
 	fds.push_back(client_pfd); // add the server pollfd to the vector
+	write(client_socket, "pong\n", 5);
 }
 
 void Server::handleClient(int client_socket)
@@ -121,6 +123,8 @@ void Server::handleClient(int client_socket)
 		disconnectClient(client_socket);
 		return;
 	}
+	// if (buffer[bytes_read - 1] == '\n') // trims the newline at the end
+	// 	buffer[bytes_read - 1] = 0;
 	buffer[bytes_read] = 0;
 	// TODO: handle the client input here
 	handleClientInput(client_socket, buffer);
@@ -130,9 +134,16 @@ void Server::handleClientInput(int client_socket, std::string input)
 {
 	// TODO: send message correctly
 	if (input[0] && input[0] != '/')
+	{
 		std::cout << client_socket << " sent: " << input;
+		return;
+	}
+	if (input == "/disconnect")
+		disconnectClient(client_socket);
+	else if (input == "/ping")
+		ping(client_socket);
 	else
-		std::cout << client_socket << " used a command " << input;
+		std::cout << client_socket << " used an unknown command: " << input;
 }
 
 void Server::disconnectClient(int client_socket)
@@ -160,4 +171,10 @@ void Server::disconnectAll()
 		else
 			std::cout << "Client " << fds[i].fd << RED << " disconnected" << WHI << std::endl;
 	}
+}
+
+void Server::ping(int client_socket)
+{
+	std::cout << "got pinged" << std::endl;
+	write(client_socket, "pong\n", 5);
 }

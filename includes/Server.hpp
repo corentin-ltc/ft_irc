@@ -35,6 +35,9 @@ class Server
 	void disconnectClient(int client_socket);
 	void disconnectAll();
 	void handleClientInput(int client_socket, std::string input);
+
+  private: // commands
+	void ping(int client_socket);
 };
 
 #endif
