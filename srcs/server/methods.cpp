@@ -14,14 +14,12 @@ void Server::acceptNewClient()
 
 void Server::handleClient(int client_socket)
 {
-	Client client;
-
+	Client *client;
 	for (size_t i = 0; i < this->clients.size(); i++)
 		if (this->clients[i].getSocket() == client_socket)
-			client = this->clients[i];
+			client = &this->clients[i];
 
 	char buffer[1024];
-
 	int bytes_read = read(client_socket, &buffer, sizeof(buffer));
 	if (-1 == bytes_read)
 		throw std::runtime_error("read");
@@ -31,10 +29,13 @@ void Server::handleClient(int client_socket)
 		return;
 	}
 	buffer[bytes_read] = 0;
-	command();
-	// TODO: handle the client input here
-	// recup le client
-	// -> pas authentifie -> login
+	client->setMessage(buffer);
+	std::string message = client->getMessage();
+	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
+		return;
+	if (message.size() > 2 && message[message.size() - 2] == '\r') // if \r, trims it
+		message.erase(message.size() - 1);
+	std::cout << "message: " << message << std::endl;
 }
 
 void Server::disconnectClient(int client_socket)

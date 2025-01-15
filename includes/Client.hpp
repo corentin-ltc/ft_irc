@@ -24,8 +24,8 @@ class Client
 	int getSocket() const;
 	bool isAuthentificated() const;
 	// setters
-	void setNickname() const;
-	void setUsername() const;
-	void setMessage() const;
+	void setNickname();
+	void setUsername();
+	void setMessage(std::string new_message);
 	void authentificate();
 };

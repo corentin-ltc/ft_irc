@@ -20,6 +20,24 @@ std::string Client::getNickname() const
 	return (nickname);
 }
 
+std::string Client::getMessage() const
+{
+	return (message);
+}
+
+int Client::getSocket() const
+{
+	return (client_socket);
+}
+
+void Client::setMessage(std::string new_message)
+{
+	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
+		this->message.append(new_message);
+	else
+		this->message = new_message;
+}
+
 bool Client::isAuthentificated() const
 {
 	return authentificated;
