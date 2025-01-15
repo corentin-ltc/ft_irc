@@ -21,15 +21,10 @@ void Server::handleAuthentification(Client *client)
 	if (client->getMessage().find("CAP LS") == 0)
 	{
 		std::cout << nick << std::endl;
-		welcome = nick + ":001 Welcome" + nick + "\r\n";
+		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
 		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
+		client->authentificate();
 	}
-	if (client->getMessage().find("PING") == 0)
-	{
-		welcome = "PONG :" + client->getMessage().substr(5);
-		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
-	}
-	client->authentificate();
 }
 
 void Server::handleClient(int client_socket)
@@ -54,7 +49,7 @@ void Server::handleClient(int client_socket)
 	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
 		return;
 	if (message.size() > 2 && message[message.size() - 2] == '\r') // if \r, trims it
-		message.erase(message.size() - 1);
+		message.erase(message.size() - 2);
 	if (client->isAuthentificated() == 0)
 		handleAuthentification(client);
 	else
