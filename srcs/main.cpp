@@ -1,6 +1,5 @@
 #include "Server.hpp"
-#include <iostream>
-#include <signal.h>
+#include "ft_irc.hpp"
 
 void stopServer(int signal)
 {
@@ -24,5 +23,6 @@ int main(void)
 		std::cout << "Couldn't run the server because : " << e.what() << std::endl;
 		return (1);
 	}
+
 	return (0);
 }
