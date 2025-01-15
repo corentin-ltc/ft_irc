@@ -21,7 +21,8 @@ int main(void)
 	catch (std::exception &e)
 	{
 		std::cout << "Couldn't run the server because : " << e.what() << std::endl;
+		return (1);
 	}
-	
+
 	return (0);
 }

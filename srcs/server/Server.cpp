@@ -1,12 +1,4 @@
 #include "Server.hpp"
-#include "ft_irc.hpp"
-#include <csignal>
-#include <fcntl.h>	// fcntl()
-#include <iostream> // cout, endl
-#include <map>
-#include <stdexcept>	// runtime_error()
-#include <sys/socket.h> // socket()
-#include <unistd.h>		// read
 
 bool Server::signal = false;
 
@@ -77,10 +69,8 @@ void Server::run()
 				break;
 			throw std::runtime_error("poll");
 		}
-		// loop through fds and to check if an event triggered
 		for (size_t i = 0; i < fds.size(); i++) //-> check all file descriptors
 		{
-			// NOTE: if serv -> new client, if not -> client message
 			if (fds[i].revents) //-> check if there is data to read
 			{
 				if (fds[i].fd == server_socket)
@@ -90,81 +80,6 @@ void Server::run()
 			}
 		}
 	}
-}
-
-void Server::acceptNewClient()
-{
-	struct pollfd client_pfd;
-	int client_socket;
-
-	// NOTE: accept client socket
-	client_socket = accept(server_socket, NULL, NULL);
-	if (-1 == client_socket)
-		throw std::runtime_error("accept");
-	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
-	// TODO: make Client and add to Clients list
-	Client client(client_socket);
-	clients.push_back(client);
-	// NOTE: make pollfd and add to fds list
-	client_pfd.fd = client_socket;
-	client_pfd.events = POLLIN;
-	client_pfd.revents = 0;
-	fds.push_back(client_pfd); // add the server pollfd to the vector
-	write(client_socket, "pong\n", 5);
-}
-
-void Server::handleClient(int client_socket)
-{
-	char buffer[1024];
-
-	int bytes_read = read(client_socket, &buffer, sizeof(buffer));
-	if (-1 == bytes_read)
-		throw std::runtime_error("read");
-	if (0 == bytes_read)
-	{
-		disconnectClient(client_socket);
-		return;
-	}
-	// if (buffer[bytes_read - 1] == '\n') // trims the newline at the end
-	// 	buffer[bytes_read - 1] = 0;
-	buffer[bytes_read] = 0;
-	// TODO: handle the client input here
-	std::string message;
-	handleClientInput(client_socket, buffer);
-	message.append(buffer);
-	if (!message.empty() && message[message.size() - 1] == '\r')
-		message.erase(message.size() - 1);
-	std::string nick;
-	std::cout << RED <<"received : " << WHI << message << std::endl;
-	if (message.find("NICK") == 0)
-		nick = message.substr(5);
-	std::string welcome;
-	if (message.find("CAP LS") == 0)
-	{
-		std::cout << nick << std::endl;
-		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
-		send(client_socket, welcome.c_str(), welcome.length(), 0);
-		std::cout << GRE << "sent : " << WHI << welcome;
-	}
-	if (message.find("PING") == 0)
-	{
-		welcome = "PONG :" + message.substr(5);
-		send(client_socket, welcome.c_str(), welcome.length(), 0);
-		std::cout << GRE << "sent : " << WHI << welcome;
-	}
-	// TODO: handle the client input here
-	handleClientInput(getClient(client_socket), message);
-}
-
-Client Server::getClient(int client_socket)
-{
-	std::vector<Client>::iterator it;
-	for (it = clients.begin(); it != clients.end(); it++)
-	{
-		if (it[0].getSocketFd() == client_socket)
-			return *it;
-	}
-	throw std::runtime_error("Error getClient");
 }
 
 void Server::joinChannel(Client client, std::string input)
@@ -191,62 +106,4 @@ void Server::joinChannel(Client client, std::string input)
 		newChan.addUser(client);
 
 	}
-
-}
-
-void Server::handleClientInput(Client client, std::string input)
-{
-	// TODO: send message correctly
-
-	if (input[0] && input[0] != '/')
-	{
-		std::cout << client.getSocketFd() << " sent: " << input;
-		return;
-	}
-	if (input == "/disconnect\n")
-		disconnectClient(client.getSocketFd());
-	if (input.find("JOIN ") == 0)
-	{
-		std::cout << "l211: " << input << std::endl;
-		joinChannel(client, input);
-		
-	}
-	else if (input == "/ping\n")
-		ping(client.getSocketFd());
-	else
-		std::cout << client.getSocketFd() << " used an unknown command: " << input;
-}
-
-void Server::disconnectClient(int client_socket)
-{
-	for (size_t i = 0; i < fds.size(); i++)
-	{
-		if (fds[i].fd == client_socket)
-		{
-			fds.erase(fds.begin() + i);
-			close(client_socket);
-			std::cout << "Client " << client_socket << RED << " disconnected" << WHI << std::endl;
-			break;
-		}
-	}
-	// TODO: remove from clients vector
-}
-
-void Server::disconnectAll()
-{
-	for (size_t i = 0; i < fds.size(); i++)
-	{
-		close(fds[i].fd);
-		if (fds[i].fd == server_socket)
-			std::cout << RED << "Shuting the server down" << WHI << std::endl;
-		else
-			std::cout << "Client " << fds[i].fd << RED << " disconnected" << WHI << std::endl;
-	}
-}
-
-
-void Server::ping(int client_socket)
-{
-	std::cout << "got pinged" << std::endl;
-	write(client_socket, "pong\n", 5);
 }
