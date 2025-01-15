@@ -125,12 +125,18 @@ void Server::handleClient(int client_socket)
 	std::string nick;
 	if (message.find("NICK") == 0)
 		nick = message.substr(5);
+	std::string welcome;
 	if (message.find("CAP LS") == 0)
 	{
-		std::string welcome = ":ft_irc CAP * LS :\r\n";
+		std::cout << nick << std::endl;
+		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
 		send(client_socket, welcome.c_str(), welcome.length(), 0);
-		welcome = ":ft_irc 001" + nick + " :Welcome " + nick + "\r\n";
+	}
+	if (message.find("PING") == 0)
+	{
+		welcome = "PONG :" + message.substr(5);
 		send(client_socket, welcome.c_str(), welcome.length(), 0);
+			std::cout << welcome;
 	}
 	std::cout << "received : " << message;
 }
