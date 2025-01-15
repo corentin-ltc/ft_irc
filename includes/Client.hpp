@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ft_irc.hpp"
+#include <string>
 
 class Client
 {

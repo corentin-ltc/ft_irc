@@ -15,7 +15,7 @@ INCLUDES =	includes
 
 COMMANDS =	
 
-SERVER = serverLoop.cpp
+SERVER = Server.cpp
 
 CLIENT = Client.cpp
 	
@@ -33,7 +33,7 @@ OBJS_DIR = objs/
 OBJS = ${addprefix ${OBJS_DIR}, ${SRCS_NAMES:.cpp=.o}}
 
 #NOTE: allows dependency during compilation, .o will recompile on change
-HEADERS = includes/Client.hpp includes/ft_irc.hpp
+HEADERS = includes/Client.hpp includes/ft_irc.hpp include/Server.hpp
 
 ######################## BASIC RULES ########################
 

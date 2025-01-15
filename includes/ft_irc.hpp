@@ -1,5 +1,10 @@
 #pragma once
 
-#include <iostream>
-#include <netinet/in.h> // serverAddr est une instance de la structure sockaddr_in, qui est utilisée pour configurer les informations réseau. Cette structure est définie dans la bibliothèque système (<netinet/in.h>).
-#include <stdbool.h>
+#include <sys/poll.h>
+
+#define RED "\e[1;31m" //-> for red color
+#define WHI "\e[0;37m" //-> for white color
+#define GRE "\e[1;32m" //-> for green color
+#define YEL "\e[1;33m" //-> for yellow color
+
+typedef struct pollfd t_pollfd;
