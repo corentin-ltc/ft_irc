@@ -1,6 +1,28 @@
-#include "ft_irc.hpp"
+#include "Server.hpp"
+#include <iostream>
+#include <signal.h>
 
-int main()
+void stopServer(int signal)
 {
-    return (0);
+	Server::signal = true;
+	(void)signal;
+}
+
+int main(void)
+{
+	Server server(6667, "password");
+
+	signal(SIGINT, stopServer);
+
+	try
+	{
+		server.initServer();
+		server.run();
+	}
+	catch (std::exception &e)
+	{
+		std::cout << "Couldn't run the server because : " << e.what() << std::endl;
+	}
+
+	return (0);
 }
