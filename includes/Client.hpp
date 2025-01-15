@@ -10,9 +10,13 @@ class Client
 	std::string message;
 	int client_socket;
 	bool authentificated;
+	bool globalOperator;
 
   public: // construct
 	Client(int fd);
+
+	bool isGlobalOperator(){return globalOperator;};
+
 	Client();
 	~Client();
 
@@ -28,4 +32,5 @@ class Client
 	void setUsername();
 	void setMessage(std::string new_message);
 	void authentificate();
+
 };
