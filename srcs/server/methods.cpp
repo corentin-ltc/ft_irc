@@ -12,6 +12,26 @@ void Server::acceptNewClient()
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 }
 
+void Server::handleAuthentification(Client *client)
+{
+	std::string nick;
+	std::string welcome;
+	if (client->getMessage().find("NICK") == 0)
+		nick = client->getMessage().substr(5);
+	if (client->getMessage().find("CAP LS") == 0)
+	{
+		std::cout << nick << std::endl;
+		welcome = nick + ":001 Welcome" + nick + "\r\n";
+		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
+	}
+	if (client->getMessage().find("PING") == 0)
+	{
+		welcome = "PONG :" + client->getMessage().substr(5);
+		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
+	}
+	client->authentificate();
+}
+
 void Server::handleClient(int client_socket)
 {
 	Client *client;
@@ -35,6 +55,10 @@ void Server::handleClient(int client_socket)
 		return;
 	if (message.size() > 2 && message[message.size() - 2] == '\r') // if \r, trims it
 		message.erase(message.size() - 1);
+	if (client->isAuthentificated() == 0)
+		handleAuthentification(client);
+	else
+		handleCommand(client);
 	std::cout << "message: " << message << std::endl;
 }
 
