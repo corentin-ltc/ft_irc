@@ -18,11 +18,14 @@ SERVER = Server.cpp methods.cpp commands.cpp
 CLIENT =	Client.cpp
 
 CHANNEL =	Channel.cpp
+
+UTILS = utils.cpp
 	
 SRCS_NAMES =	main.cpp \
 				${addprefix server/, ${SERVER}} \
 				${addprefix client/, ${CLIENT}} \
-				${addprefix channel/, ${CHANNEL}}
+				${addprefix channel/, ${CHANNEL}} \
+				${addprefix utils/, ${UTILS}}
 
 SRCS_DIR = srcs/
 
@@ -62,6 +65,7 @@ ${OBJS_DIR} :
 	mkdir $@client
 	mkdir $@server
 	mkdir $@channel
+	mkdir $@utils
 
 ${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp
 	${CC} ${FLAGS} ${EXTRAFLAGS} ${CPPFLAGS} ${foreach include, ${INCLUDES},-I ${include}} -c $< -o $@
