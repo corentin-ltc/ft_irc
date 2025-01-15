@@ -122,10 +122,14 @@ void Server::handleClient(int client_socket)
 	message.append(buffer);
 	if (!message.empty() && message[message.size() - 1] == '\r')
 		message.erase(message.size() - 1);
+	std::string nick;
 	if (message.find("NICK") == 0)
+		nick = message.substr(5);
+	if (message.find("CAP LS") == 0)
 	{
-		std::string nick = message.substr(5);
-		std::string welcome = ":" + nick + " 001 " + nick + " :Welcome " + nick + "\r\n";
+		std::string welcome = ":ft_irc CAP * LS :\r\n";
+		send(client_socket, welcome.c_str(), welcome.length(), 0);
+		welcome = ":ft_irc 001" + nick + " :Welcome " + nick + "\r\n";
 		send(client_socket, welcome.c_str(), welcome.length(), 0);
 	}
 	std::cout << "received : " << message;
