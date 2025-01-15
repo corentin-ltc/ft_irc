@@ -13,16 +13,13 @@ INCLUDES =	includes
 
 ######################## SOURCES ########################
 
-COMMANDS =	
-
-SERVER =	Server.cpp
+SERVER = Server.cpp methods.cpp commands.cpp
 
 CLIENT =	Client.cpp
 
 CHANNEL =	Channel.cpp
 	
 SRCS_NAMES =	main.cpp \
-				${addprefix commands/, ${COMMANDS}} \
 				${addprefix server/, ${SERVER}} \
 				${addprefix client/, ${CLIENT}} \
 				${addprefix channel/, ${CHANNEL}}
@@ -63,7 +60,6 @@ ${NAME} : ${OBJS_DIR} ${OBJS}
 ${OBJS_DIR} :
 	mkdir $@
 	mkdir $@client
-	mkdir $@commands
 	mkdir $@server
 	mkdir $@channel
 
@@ -76,6 +72,9 @@ test : base
 
 base : all
 	./${NAME}
+
+err : all
+	./${NAME} 2>/dev/null
 
 leak : all
 	valgrind --leak-check=full --show-leak-kinds=all ./${NAME}
