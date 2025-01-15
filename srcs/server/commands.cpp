@@ -1,14 +1,19 @@
 #include "Server.hpp"
 
-void Server::ping(int client_socket)
+void Server::ping(Client *client)
 {
-	std::cout << "got pinged" << std::endl;
-	write(client_socket, "pong\n", 5);
+	std::string pong;
+	pong = "PONG :" + client->getMessage().substr(5);
+	send(client->getSocket(), pong.c_str(), pong.length(), 0);
 }
 
 void Server::handleCommand(Client *client)
 {
-
+	std::cout << "Received a command\n";
+	if (client->getMessage().find("JOIN") == 0)
+	{}
+	if (client->getMessage().find("PING") == 0)
+		ping(client);
 }
 
 void Server::joinChannel(Client client, std::string input)

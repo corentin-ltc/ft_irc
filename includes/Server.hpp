@@ -44,7 +44,7 @@ class Server
 
 
   private: // commands
-	void ping(int client_socket);
+	void ping(Client *client);
 	void handleAuthentification(Client *client);
 	void handleCommand(Client *client);
 };
