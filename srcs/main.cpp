@@ -1,6 +1,5 @@
 #include "Server.hpp"
-#include <iostream>
-#include <signal.h>
+#include "ft_irc.hpp"
 
 void stopServer(int signal)
 {

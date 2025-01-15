@@ -15,14 +15,17 @@ INCLUDES =	includes
 
 COMMANDS =	
 
-SERVER = Server.cpp
+SERVER =	Server.cpp
 
-CLIENT = Client.cpp
+CLIENT =	Client.cpp
+
+CHANNEL =	Channel.cpp
 	
 SRCS_NAMES =	main.cpp \
 				${addprefix commands/, ${COMMANDS}} \
 				${addprefix server/, ${SERVER}} \
-				${addprefix client/, ${CLIENT}}
+				${addprefix client/, ${CLIENT}} \
+				${addprefix channel/, ${CHANNEL}}
 
 SRCS_DIR = srcs/
 
@@ -33,7 +36,7 @@ OBJS_DIR = objs/
 OBJS = ${addprefix ${OBJS_DIR}, ${SRCS_NAMES:.cpp=.o}}
 
 #NOTE: allows dependency during compilation, .o will recompile on change
-HEADERS = includes/Client.hpp includes/ft_irc.hpp include/Server.hpp
+HEADERS = includes/Client.hpp includes/ft_irc.hpp includes/Server.hpp includes/Channel.hpp
 
 ######################## BASIC RULES ########################
 
@@ -62,6 +65,7 @@ ${OBJS_DIR} :
 	mkdir $@client
 	mkdir $@commands
 	mkdir $@server
+	mkdir $@channel
 
 ${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp
 	${CC} ${FLAGS} ${EXTRAFLAGS} ${CPPFLAGS} ${foreach include, ${INCLUDES},-I ${include}} -c $< -o $@

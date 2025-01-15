@@ -2,10 +2,10 @@
 #define SERVER_HPP
 
 #include "Client.hpp"
-#include <netinet/in.h> // struct sockaddr_in
-#include <string>
-#include <sys/poll.h> // struct pollfd
-#include <vector>
+#include "Channel.hpp"
+#include "ft_irc.hpp"
+
+class Channel;
 
 class Server
 {
@@ -19,6 +19,7 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
+	std::vector<Channel> channels;
 
   public: // constructors
 	Server();
@@ -35,6 +36,9 @@ class Server
 	void disconnectClient(int client_socket);
 	void disconnectAll();
 	void handleClientInput(int client_socket, std::string input);
+	void joinChannel(Client client, std::string input);
+
+
 
   private: // commands
 	void ping(int client_socket);

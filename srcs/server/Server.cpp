@@ -130,6 +130,33 @@ void Server::handleClient(int client_socket)
 	handleClientInput(client_socket, buffer);
 }
 
+void Server::joinChannel(Client client, std::string input)
+{
+	std::string channel = input.substr(6, input.size());
+	if (channel.size() == 0)
+		std::cout << client.getSocketFd() << "Usage: /join <channel_name>" << std::endl;
+	std::cout << channel << std::endl;
+	std::vector<Channel>::iterator it;
+	for (it = channels.begin(); it != channels.end(); it++)
+	{
+		if (it[0].getName() == channel)
+		{
+			std::cout << "Client " << client.getSocketFd() << " has join the existing channel : " << channel << std::endl;
+			it[0].addUser(client);
+			break;
+		}
+	}
+    if (it == channels.end())
+	{
+		Channel newChan(channel);
+		channels.push_back(newChan);
+		std::cout << "Client " << client.getSocketFd() << " successfully created the channel : " << channel << std::endl;
+		newChan.addUser(client);
+
+	}
+
+}
+
 void Server::handleClientInput(int client_socket, std::string input)
 {
 	// TODO: send message correctly
@@ -138,9 +165,11 @@ void Server::handleClientInput(int client_socket, std::string input)
 		std::cout << client_socket << " sent: " << input;
 		return;
 	}
-	if (input == "/disconnect")
+	if (input == "/disconnect\n")
 		disconnectClient(client_socket);
-	else if (input == "/ping")
+	if (input.find("/join ") == 0)
+		joinChannel(client_socket, input);
+	else if (input == "/ping\n")
 		ping(client_socket);
 	else
 		std::cout << client_socket << " used an unknown command: " << input;
@@ -172,6 +201,7 @@ void Server::disconnectAll()
 			std::cout << "Client " << fds[i].fd << RED << " disconnected" << WHI << std::endl;
 	}
 }
+
 
 void Server::ping(int client_socket)
 {
