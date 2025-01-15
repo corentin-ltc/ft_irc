@@ -13,14 +13,11 @@ INCLUDES =	includes
 
 ######################## SOURCES ########################
 
-COMMANDS =	
-
-SERVER = Server.cpp
+SERVER = Server.cpp methods.cpp commands.cpp
 
 CLIENT = Client.cpp
 	
 SRCS_NAMES =	main.cpp \
-				${addprefix commands/, ${COMMANDS}} \
 				${addprefix server/, ${SERVER}} \
 				${addprefix client/, ${CLIENT}}
 
@@ -60,7 +57,6 @@ ${NAME} : ${OBJS_DIR} ${OBJS}
 ${OBJS_DIR} :
 	mkdir $@
 	mkdir $@client
-	mkdir $@commands
 	mkdir $@server
 
 ${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp
@@ -72,6 +68,9 @@ test : base
 
 base : all
 	./${NAME}
+
+err : all
+	./${NAME} 2>/dev/null
 
 leak : all
 	valgrind --leak-check=full --show-leak-kinds=all ./${NAME}
