@@ -110,6 +110,7 @@ void Server::acceptNewClient()
 	fds.push_back(client_pfd); // add the server pollfd to the vector
 	write(client_socket, "pong\n", 5);
 }
+// test
 
 void Server::handleClient(int client_socket)
 {
