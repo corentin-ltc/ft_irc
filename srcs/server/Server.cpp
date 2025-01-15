@@ -103,6 +103,8 @@ void Server::acceptNewClient()
 		throw std::runtime_error("accept");
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 	// TODO: make Client and add to Clients list
+	Client client(client_socket);
+	clients.push_back(client);
 	// NOTE: make pollfd and add to fds list
 	client_pfd.fd = client_socket;
 	client_pfd.events = POLLIN;
@@ -127,12 +129,47 @@ void Server::handleClient(int client_socket)
 	// 	buffer[bytes_read - 1] = 0;
 	buffer[bytes_read] = 0;
 	// TODO: handle the client input here
+	std::string message;
 	handleClientInput(client_socket, buffer);
+	message.append(buffer);
+	if (!message.empty() && message[message.size() - 1] == '\r')
+		message.erase(message.size() - 1);
+	std::string nick;
+	std::cout << RED <<"received : " << WHI << message << std::endl;
+	if (message.find("NICK") == 0)
+		nick = message.substr(5);
+	std::string welcome;
+	if (message.find("CAP LS") == 0)
+	{
+		std::cout << nick << std::endl;
+		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
+		send(client_socket, welcome.c_str(), welcome.length(), 0);
+		std::cout << GRE << "sent : " << WHI << welcome;
+	}
+	if (message.find("PING") == 0)
+	{
+		welcome = "PONG :" + message.substr(5);
+		send(client_socket, welcome.c_str(), welcome.length(), 0);
+		std::cout << GRE << "sent : " << WHI << welcome;
+	}
+	// TODO: handle the client input here
+	handleClientInput(getClient(client_socket), message);
+}
+
+Client Server::getClient(int client_socket)
+{
+	std::vector<Client>::iterator it;
+	for (it = clients.begin(); it != clients.end(); it++)
+	{
+		if (it[0].getSocketFd() == client_socket)
+			return *it;
+	}
+	throw std::runtime_error("Error getClient");
 }
 
 void Server::joinChannel(Client client, std::string input)
 {
-	std::string channel = input.substr(6, input.size());
+	std::string channel = input.substr(5, input.size());
 	if (channel.size() == 0)
 		std::cout << client.getSocketFd() << "Usage: /join <channel_name>" << std::endl;
 	std::cout << channel << std::endl;
@@ -157,22 +194,27 @@ void Server::joinChannel(Client client, std::string input)
 
 }
 
-void Server::handleClientInput(int client_socket, std::string input)
+void Server::handleClientInput(Client client, std::string input)
 {
 	// TODO: send message correctly
+
 	if (input[0] && input[0] != '/')
 	{
-		std::cout << client_socket << " sent: " << input;
+		std::cout << client.getSocketFd() << " sent: " << input;
 		return;
 	}
 	if (input == "/disconnect\n")
-		disconnectClient(client_socket);
-	if (input.find("/join ") == 0)
-		joinChannel(client_socket, input);
+		disconnectClient(client.getSocketFd());
+	if (input.find("JOIN ") == 0)
+	{
+		std::cout << "l211: " << input << std::endl;
+		joinChannel(client, input);
+		
+	}
 	else if (input == "/ping\n")
-		ping(client_socket);
+		ping(client.getSocketFd());
 	else
-		std::cout << client_socket << " used an unknown command: " << input;
+		std::cout << client.getSocketFd() << " used an unknown command: " << input;
 }
 
 void Server::disconnectClient(int client_socket)

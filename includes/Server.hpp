@@ -35,8 +35,10 @@ class Server
 	void handleClient(int client_socket);
 	void disconnectClient(int client_socket);
 	void disconnectAll();
-	void handleClientInput(int client_socket, std::string input);
+	void handleClientInput(Client client, std::string input);
 	void joinChannel(Client client, std::string input);
+	Client getClient(int client_socket);
+
 
 
 

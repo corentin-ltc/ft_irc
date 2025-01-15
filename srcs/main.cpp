@@ -22,6 +22,6 @@ int main(void)
 	{
 		std::cout << "Couldn't run the server because : " << e.what() << std::endl;
 	}
-
+	
 	return (0);
 }
