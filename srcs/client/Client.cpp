@@ -1,20 +1,31 @@
 #include "Client.hpp"
 
-Client::Client(int fd) : socketFd(fd), authentificated(false)
+Client::Client(int fd) : client_socket(fd), authentificated(false)
 {
+	std::cerr << "[Client fd constructor]\n";
 }
 
-std::string Client::getNickname()
+Client::Client() : client_socket(-1), authentificated(false)
 {
-	return nickname;
+	std::cerr << "[Client default constructor]\n";
 }
 
-bool Client::isAuthentificated()
+Client::~Client()
 {
-	(void)socketFd;
+	std::cerr << "[Client destructor]\n";
+}
+
+std::string Client::getNickname() const
+{
+	return (nickname);
+}
+
+bool Client::isAuthentificated() const
+{
 	return authentificated;
 }
 void Client::authentificate()
 {
+	std::cout << "Client " << client_socket << GRE << " successfully authentificated." << WHI << std::endl;
 	authentificated = true;
 }

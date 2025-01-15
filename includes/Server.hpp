@@ -2,11 +2,7 @@
 #define SERVER_HPP
 
 #include "Client.hpp"
-#include <netinet/in.h> // struct sockaddr_in
-#include <string>
-#include <cstring>
-#include <sys/poll.h> // struct pollfd
-#include <vector>
+#include "ft_irc.hpp"
 
 class Server
 {
