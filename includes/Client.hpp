@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "ft_irc.hpp"
 
 class Client
 {
@@ -8,12 +8,24 @@ class Client
 	std::string nickname;
 	std::string username;
 	std::string message;
-	int socketFd;
+	int client_socket;
 	bool authentificated;
 
-  public:
+  public: // construct
 	Client(int fd);
-	std::string getNickname();
-	bool isAuthentificated();
+	Client();
+	~Client();
+
+  public:
+	// getters
+	std::string getNickname() const;
+	std::string getUsername() const;
+	std::string getMessage() const;
+	int getSocket() const;
+	bool isAuthentificated() const;
+	// setters
+	void setNickname() const;
+	void setUsername() const;
+	void setMessage() const;
 	void authentificate();
 };

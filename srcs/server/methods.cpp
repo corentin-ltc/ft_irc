@@ -1,0 +1,65 @@
+#include "Server.hpp"
+
+void Server::acceptNewClient()
+{
+	int client_socket;
+
+	client_socket = accept(server_socket, NULL, NULL);
+	if (-1 == client_socket)
+		throw std::runtime_error("accept");
+	clients.push_back(Client(client_socket));
+	fds.push_back((struct pollfd){.fd = client_socket, .events = POLLIN, .revents = 0});
+	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
+}
+
+void Server::handleClient(int client_socket)
+{
+	Client client;
+
+	for (size_t i = 0; i < this->clients.size(); i++)
+		if (this->clients[i].getSocket() == client_socket)
+			client = this->clients[i];
+
+	char buffer[1024];
+
+	int bytes_read = read(client_socket, &buffer, sizeof(buffer));
+	if (-1 == bytes_read)
+		throw std::runtime_error("read");
+	if (0 == bytes_read)
+	{
+		disconnectClient(client_socket);
+		return;
+	}
+	buffer[bytes_read] = 0;
+	command();
+	// TODO: handle the client input here
+	// recup le client
+	// -> pas authentifie -> login
+}
+
+void Server::disconnectClient(int client_socket)
+{
+	for (size_t i = 0; i < fds.size(); i++)
+	{
+		if (fds[i].fd == client_socket)
+		{
+			close(client_socket);
+			this->fds.erase(this->fds.begin() + i);
+			this->clients.erase(this->clients.begin() + i);
+			std::cout << "Client " << client_socket << RED << " disconnected." << WHI << std::endl;
+			break;
+		}
+	}
+}
+
+void Server::disconnectAll()
+{
+	std::cout << RED << "Shuting the server down" << WHI << std::endl;
+	for (size_t i = 0; i < fds.size(); i++)
+	{
+		close(fds[i].fd);
+		std::cout << "Client " << i << RED << " disconnected." << WHI << std::endl;
+	}
+	this->fds.clear();
+	this->clients.clear();
+}
