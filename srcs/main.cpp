@@ -1,21 +1,23 @@
 #include "Server.hpp"
-#include "ft_irc.hpp"
+#include <cstdlib>
 
-void stopServer(int signal)
+int main(int argc, char **argv)
 {
-	Server::signal = true;
-	(void)signal;
-}
-
-int main(void)
-{
-	Server server(6667, "password");
-
-	signal(SIGINT, stopServer);
+	unsigned short port = 6667;
+	std::string password;
 
 	try
 	{
+		if (argc > 1)
+			port = parse_port(argv[1]);
+		if (argc > 2)
+			password = parse_password(argv[2]);
+
+		std::cout << "Port: " << port << "\nPassword: " << password << std::endl;
+
+		Server server(port, password);
 		server.initServer();
+		signal(SIGINT, stopServer);
 		server.run();
 	}
 	catch (std::exception &e)
