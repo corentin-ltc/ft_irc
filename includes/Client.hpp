@@ -9,10 +9,13 @@ class Client
 	std::string username;
 	int socketFd;
 	bool authentificated;
+	bool globalOperator;
 
   public:
 	Client(int fd);
-	std::string getNickname();
-	bool isAuthentificated();
-	void authentificate();
+	std::string getNickname(){return nickname;};
+	int getSocketFd(){return socketFd;};
+	bool isGlobalOperator(){return globalOperator;};
+	bool isAuthentificated(){return authentificated;};
+	void authentificate(){authentificated = true;};
 };
