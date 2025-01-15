@@ -127,24 +127,29 @@ void Server::handleClient(int client_socket)
 	// if (buffer[bytes_read - 1] == '\n') // trims the newline at the end
 	// 	buffer[bytes_read - 1] = 0;
 	buffer[bytes_read] = 0;
-	// TODO: handle the client input here
-	handleClientInput(client_socket, buffer);
-}
-
-void Server::handleClientInput(int client_socket, std::string input)
-{
-	// TODO: send message correctly
-	if (input[0] && input[0] != '/')
+	std::string message;
+	message.append(buffer);
+	if (!message.empty() && message[message.size() - 1] == '\r')
+		message.erase(message.size() - 1);
+	std::string nick;
+	if (message.find("NICK") == 0)
+		nick = message.substr(5);
+	std::string welcome;
+	if (message.find("CAP LS") == 0)
 	{
-		std::cout << client_socket << " sent: " << input;
-		return;
+		std::cout << nick << std::endl;
+		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
+		send(client_socket, welcome.c_str(), welcome.length(), 0);
 	}
-	if (input == "/disconnect")
-		disconnectClient(client_socket);
-	else if (input == "/ping")
-		ping(client_socket);
-	else
-		std::cout << client_socket << " used an unknown command: " << input;
+	if (message.find("PING") == 0)
+	{
+		welcome = "PONG :" + message.substr(5);
+		send(client_socket, welcome.c_str(), welcome.length(), 0);
+			std::cout << welcome;
+	}
+	std::cout << "received : " << message;
+	// TODO: handle the client input here
+	// handleClientInput(client_socket, buffer);
 }
 
 void Server::disconnectClient(int client_socket)

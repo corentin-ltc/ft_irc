@@ -7,6 +7,7 @@ class Client
   private:
 	std::string nickname;
 	std::string username;
+	std::string message;
 	int socketFd;
 	bool authentificated;
 
