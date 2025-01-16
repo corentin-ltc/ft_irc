@@ -32,6 +32,8 @@ int Client::getSocket() const
 
 void Client::setMessage(std::string new_message)
 {
+	if (new_message.size() > 2 && new_message.find('\r') == new_message.size() - 2)
+		new_message.erase(new_message.size() - 2);
 	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
 		this->message.append(new_message);
 	else

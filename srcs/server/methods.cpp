@@ -21,7 +21,8 @@ void Server::handleAuthentification(Client *client)
 	if (client->getMessage().find("CAP LS") == 0)
 	{
 		std::cout << nick << std::endl;
-		welcome = ":ft_irc 001 :Welcome" + nick + "\r\n";
+		welcome = "ft_irc 001 :Welcome" + nick + "\r\n";
+		std::cout << "nick:" << nick << std::endl;
 		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
 		client->authentificate();
 	}
@@ -48,8 +49,8 @@ void Server::handleClient(int client_socket)
 	std::string message = client->getMessage();
 	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
 		return;
-	if (message.size() > 2 && message[message.size() - 2] == '\r') // if \r, trims it
-		message.erase(message.size() - 2);
+		//TODO: verifier normalement c'est fait dans setMEssage() !!!
+		//TODO: enlever le /r de l'original pas de la copie BAAAAAAKAAA
 	if (client->isAuthentificated() == 0)
 		handleAuthentification(client);
 	else

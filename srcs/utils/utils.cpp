@@ -18,6 +18,5 @@ unsigned short parse_port(std::string string)
 
 std::string parse_password(std::string string)
 {
-
 	return string;
 }

@@ -10,9 +10,9 @@ void Server::ping(Client *client)
 void Server::handleCommand(Client *client)
 {
 	std::cout << "Received a command\n";
-	if (client->getMessage().find("JOIN") == 0)
+	if (client->getMessage().find("JOIN #salut\n") == 0)
 	{}
-	if (client->getMessage().find("PING") == 0)
+	if (client->getMessage().find("PING qwdlqwd\n") == 0)
 		ping(client);
 }
 
