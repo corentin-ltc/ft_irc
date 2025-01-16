@@ -25,6 +25,7 @@ class Server
   public: // init
 	void initServer();
 	void run();
+	static void sendToSocket(int client_socket, std::string message);
 
   private: // client communication
 	void acceptNewClient();
@@ -32,7 +33,6 @@ class Server
 	void disconnectClient(int client_socket);
 	void disconnectAll();
 	void readClient(Client &client);
-	static void sendToSocket(int client_socket, std::string message);
 
   private: // commands
 	void handleCommand(Client &client, std::string cmd);
@@ -40,6 +40,7 @@ class Server
 	void ping(int client_socket, std::string cmd);
 	void pass(Client &client, std::string cmd);
 	void nick(Client &client, std::string cmd);
+	void user(Client &client, std::string cmd);
 };
 
 #endif
