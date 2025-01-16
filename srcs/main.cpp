@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
 	unsigned short port = 6667;
-	std::string password;
+	std::string password = "password";
 
 	try
 	{
