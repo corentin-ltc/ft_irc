@@ -1,5 +1,10 @@
 #pragma once
 
+#define SEND_FLAGS 0
+
+#define ENDL "\r\n"
+#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick + ENDL
+
 #include <csignal>
 #include <cstring>
 #include <fcntl.h> // fcntl()
@@ -20,5 +25,6 @@
 void stopServer(int signal);
 unsigned short parse_port(std::string string);
 std::string parse_password(std::string string);
+std::vector<std::string> split(std::string source, char delimiter);
 
 typedef struct pollfd t_pollfd;
