@@ -88,7 +88,7 @@ void Client::setCommandReady()
 	if (registered && nickname.size() && username.size())
 	{
 		this->command_ready = true;
-		Server::sendToSocket(this->client_socket, RPL_WELCOME);
+		Server::sendToSocket(this->client_socket, RPL_WELCOME(nickname, nickname));
 	}
 }
 
