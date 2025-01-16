@@ -10,6 +10,7 @@ class Client
 	std::string message;
 	int client_socket;
 	bool registered;
+	bool command_ready;
 	bool globalOperator;
 
   public: // construct
@@ -30,6 +31,7 @@ class Client
 	std::string getMessage() const;
 	int getSocket() const;
 	bool isRegistered() const;
+	bool isCommandReady() const;
 	// setters
 	void setNickname(std::string);
 	void setUsername(std::string);
@@ -38,6 +40,6 @@ class Client
 	bool isMessageDone();
 	void clearMessage();
 	void _register();
+	void setCommandReady();
 	// methods
-	bool isCommandReady();
 };
