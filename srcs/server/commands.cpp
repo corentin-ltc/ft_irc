@@ -25,9 +25,7 @@ inline static std::vector<std::string> get_args(std::string &str)
 
 void Server::handleCommand(Client &client, std::string cmd)
 {
-	std::cout << "Is client ready ? " << (client.isCommandReady() ? "yes" : "no") << std::endl;
 	std::string cmd_name = goto_next_word(cmd);
-	std::cout << "Command_name :" << cmd_name << std::endl;
 	if (cmd_name == "CAP")
 		return; // ignores CAP
 	if (cmd_name == "PASS")
@@ -66,7 +64,6 @@ void Server::error(int client_socket, std::string reason)
 
 void Server::pass(Client &client, std::string cmd)
 {
-	std::cout << "Pass cmd" << std::endl;
 	if (client.isRegistered())
 		this->sendToSocket(client.getSocket(), ERR_ALREADYREGISTERED);
 	else if (this->password != cmd)
