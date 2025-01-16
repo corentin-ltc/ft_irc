@@ -11,7 +11,8 @@ void Server::handleCommand(Client *client)
 {
 	std::cout << "Received a command\n";
 	if (client->getMessage().find("JOIN #salut\n") == 0)
-	{}
+	{
+	}
 	if (client->getMessage().find("PING qwdlqwd\n") == 0)
 		ping(client);
 }
@@ -32,12 +33,11 @@ void Server::joinChannel(Client client, std::string input)
 			break;
 		}
 	}
-    if (it == channels.end())
+	if (it == channels.end())
 	{
 		Channel newChan(channel);
 		channels.push_back(newChan);
 		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
 		newChan.addUser(client);
-
 	}
 }

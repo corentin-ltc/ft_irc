@@ -1,5 +1,8 @@
 #pragma once
 
+#define ENDL "\r\n"
+#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick + ENDL
+
 #include <csignal>
 #include <cstring>
 #include <fcntl.h> // fcntl()

@@ -32,12 +32,27 @@ int Client::getSocket() const
 
 void Client::setMessage(std::string new_message)
 {
-	if (new_message.size() > 2 && new_message.find('\r') == new_message.size() - 2)
-		new_message.erase(new_message.size() - 2);
-	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
-		this->message.append(new_message);
-	else
-		this->message = new_message;
+	this->message.append(new_message);
+}
+
+void Client::clearMessage()
+{
+	this->message.clear();
+}
+
+void Client::stripMessage()
+{
+	if (this->message.size() && this->message[this->message.size() - 1] == '\n')
+		this->message.erase(this->message.size() - 1);
+	if (this->message.size() && this->message[this->message.size() - 1] == '\r')
+		this->message.erase(this->message.size() - 1);
+}
+
+bool Client::isMessageDone()
+{
+	if (this->message.empty() || this->message[this->message.size() - 1] != '\n') // if no \n, message not done
+		return (false);
+	return (true);
 }
 
 bool Client::isAuthentificated() const
