@@ -16,22 +16,22 @@ inline static void goto_next_word(std::string &str)
 
 void Server::handleCommand(Client &client, std::string cmd)
 {
-	// si la 1ere cmd c'est pas PASS ptet renvoyer ERROR
-	// NOTE: cmds without auth
 	if (find(cmd, "CAP"))
 		return; // ignores CAP
 	if (find(cmd, "PASS"))
 		return (pass(client, cmd));
 	if (find(cmd, "PING"))
 		return (ping(client.getSocket(), cmd));
-	if (client.isAuthentificated() == false)
-		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
 	// NOTE: cmds needing password
+	if (client.isRegistered() == false)
+		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
+	if (find(cmd, "NICK"))
+		return (nick(client, cmd));
 	if (find(cmd, "USER"))
 		return;
-	if (find(cmd, "NICK"))
-		return;
 	// NOTE: cmds needing full auth (nickname..)
+	if (client.isCommandReady() == false)
+		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
 	if (cmd.find("JOIN"))
 		;
 	if (cmd.find("LEAVE"))
@@ -56,13 +56,21 @@ void Server::error(int client_socket, std::string reason)
 void Server::pass(Client &client, std::string cmd)
 {
 	goto_next_word(cmd);
-	if (client.isAuthentificated())
+	if (client.isRegistered())
 		this->sendToSocket(client.getSocket(), ERR_ALREADYREGISTERED);
 	else if (this->password != cmd)
 		this->sendToSocket(client.getSocket(), ERR_PASSWDMISMATCH);
 	else
-	{
-		client.authentificate();
-		this->sendToSocket(client.getSocket(), RPL_WELCOME);
-	}
+		client._register();
+}
+
+void Server::nick(Client &client, std::string cmd)
+{
+	std::string old_nick = client.getNickname();
+
+	goto_next_word(cmd);
+	// check for errors
+
+	client.setNickname(cmd);
+	this->sendToSocket(client.getSocket(), RPL_NICK(old_nick, cmd));
 }
