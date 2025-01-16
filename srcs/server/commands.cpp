@@ -1,43 +1,38 @@
 #include "Server.hpp"
 
-void Server::ping(Client *client)
+inline static bool find(std::string str, std::string needle)
 {
+	return (str.find(needle) != std::string::npos);
+}
+
+void Server::ping(Client *client, std::string cmd)
+{
+	(void)cmd;
 	std::string pong;
 	pong = "PONG :" + client->getMessage().substr(5);
+	sendToSocket(client->getSocket(), pong);
 	send(client->getSocket(), pong.c_str(), pong.length(), 0);
 }
 
-void Server::handleCommand(Client *client)
+void Server::handleCommand(Client *client, std::string cmd)
 {
-	std::cout << "Received a command\n";
-	if (client->getMessage().find("JOIN #salut\n") == 0)
-	{
-	}
-	if (client->getMessage().find("PING qwdlqwd\n") == 0)
-		ping(client);
-}
-
-void Server::joinChannel(Client client, std::string input)
-{
-	std::string channel = input.substr(5, input.size());
-	if (channel.size() == 0)
-		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
-	std::cout << channel << std::endl;
-	std::vector<Channel>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
-	{
-		if (it[0].getName() == channel)
-		{
-			std::cout << "Client " << client.getSocket() << " has join the existing channel : " << channel << std::endl;
-			it[0].addUser(client);
-			break;
-		}
-	}
-	if (it == channels.end())
-	{
-		Channel newChan(channel);
-		channels.push_back(newChan);
-		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
-		newChan.addUser(client);
-	}
+	std::cout << "Handling command: " << cmd << std::endl;
+	// NOTE: cmds without auth
+	if (find(cmd, "CAP"))
+		return; // ignore CAP
+	if (find(cmd, "PASS"))
+		return;
+	if (find(cmd, "USER"))
+		return;
+	if (find(cmd, "NICK"))
+		return;
+	if (find(cmd, "PING"))
+		return (ping(client, cmd));
+	if (client->isAuthentificated() == false)
+		return; // Renvoyer une erreur client not registered/unknown command
+	// NOTE: cmds needing authentification
+	if (cmd.find("JOIN"))
+		;
+	if (cmd.find("LEAVE"))
+		;
 }

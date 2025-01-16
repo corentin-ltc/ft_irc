@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "ft_irc.hpp"
 
 void Server::acceptNewClient()
 {
@@ -12,22 +13,6 @@ void Server::acceptNewClient()
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 }
 
-void Server::handleAuthentification(Client *client)
-{
-	std::string nick;
-	std::string welcome;
-	if (client->getMessage().find("NICK") == 0)
-		nick = client->getMessage().substr(5);
-	if (client->getMessage().find("CAP LS") == 0)
-	{
-		std::cout << nick << std::endl;
-		welcome = "ft_irc 001 :Welcome" + nick + "\r\n";
-		std::cout << "nick:" << nick << std::endl;
-		send(client->getSocket(), welcome.c_str(), welcome.length(), 0);
-		client->authentificate();
-	}
-}
-
 void Server::handleClient(int client_socket)
 {
 	// maybe put this inside a findClient(int fd) function
@@ -36,26 +21,36 @@ void Server::handleClient(int client_socket)
 		if (this->clients[i].getSocket() == client_socket)
 			client = &this->clients[i];
 
+	this->readClient(*client);
+	if (client->isMessageDone() == false)
+		return;
+	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();
+	client->stripMessage();
+	std::vector<std::string> cmds = split(client->getMessage(), '\n');
+	for (size_t i = 0; i < cmds.size(); i++)
+		handleCommand(client, cmds[i]);
+	client->clearMessage();
+}
+
+void Server::readClient(Client &client)
+{
 	char buffer[1024];
-	int bytes_read = read(client_socket, &buffer, sizeof(buffer));
+	int bytes_read = read(client.getSocket(), &buffer, sizeof(buffer));
 	if (-1 == bytes_read)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)
 	{
-		disconnectClient(client_socket);
+		disconnectClient(client.getSocket());
 		return;
 	}
 	buffer[bytes_read] = 0;
-	client->setMessage(buffer);
-	if (client->isMessageDone() == false)
-		return;
-	client->stripMessage();
-	std::cout << "message: " << client->getMessage() << std::endl;
-	if (client->isAuthentificated() == 0)
-		handleAuthentification(client);
-	else
-		handleCommand(client);
-	client->clearMessage();
+	client.setMessage(buffer);
+}
+
+void Server::sendToSocket(int client_socket, std::string message)
+{
+	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;
+	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
 void Server::disconnectClient(int client_socket)
