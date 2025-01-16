@@ -30,6 +30,7 @@ void Server::handleAuthentification(Client *client)
 
 void Server::handleClient(int client_socket)
 {
+	// maybe put this inside a findClient(int fd) function
 	Client *client;
 	for (size_t i = 0; i < this->clients.size(); i++)
 		if (this->clients[i].getSocket() == client_socket)
@@ -46,16 +47,15 @@ void Server::handleClient(int client_socket)
 	}
 	buffer[bytes_read] = 0;
 	client->setMessage(buffer);
-	std::string message = client->getMessage();
-	if (message.empty() || message[message.size() - 1] != '\n') // if no \n, message not done
+	if (client->isMessageDone() == false)
 		return;
-		//TODO: verifier normalement c'est fait dans setMEssage() !!!
-		//TODO: enlever le /r de l'original pas de la copie BAAAAAAKAAA
+	client->stripMessage();
+	std::cout << "message: " << client->getMessage() << std::endl;
 	if (client->isAuthentificated() == 0)
 		handleAuthentification(client);
 	else
 		handleCommand(client);
-	std::cout << "message: " << message << std::endl;
+	client->clearMessage();
 }
 
 void Server::disconnectClient(int client_socket)

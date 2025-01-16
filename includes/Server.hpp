@@ -1,12 +1,11 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Client.hpp"
 #include "Channel.hpp"
+#include "Client.hpp"
 #include "ft_irc.hpp"
 
 class Channel;
-
 
 class Server
 {
@@ -39,9 +38,6 @@ class Server
 	void handleClientInput(Client client, std::string input);
 	void joinChannel(Client client, std::string input);
 	Client getClient(int client_socket);
-
-
-
 
   private: // commands
 	void ping(Client *client);

@@ -15,7 +15,10 @@ class Client
   public: // construct
 	Client(int fd);
 
-	bool isGlobalOperator(){return globalOperator;};
+	bool isGlobalOperator()
+	{
+		return globalOperator;
+	};
 
 	Client();
 	~Client();
@@ -31,6 +34,8 @@ class Client
 	void setNickname();
 	void setUsername();
 	void setMessage(std::string new_message);
+	void stripMessage();
+	bool isMessageDone();
+	void clearMessage();
 	void authentificate();
-
 };
