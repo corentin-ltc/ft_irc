@@ -13,6 +13,8 @@
 #define ERR_NEEDMOREPARAMS(command) ": 461 " + command + " :Not enough parameters"
 #define ERR_ALREADYREGISTERED ": 462 :Unauthorized command (already registered)"
 #define ERR_PASSWDMISMATCH ": 464 :Password incorrect"
+#define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
+#define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
 
 #include <csignal>
 #include <cstring>
