@@ -1,11 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include "Channel.hpp"
 #include "Client.hpp"
 #include "ft_irc.hpp"
-
-class Channel;
 
 class Server
 {
@@ -19,7 +16,6 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
-	std::vector<Channel> channels;
 
   public: // constructors
 	Server();
@@ -38,11 +34,12 @@ class Server
 	void handleClientInput(Client client, std::string input);
 	void joinChannel(Client client, std::string input);
 	Client getClient(int client_socket);
+	void readClient(Client &client);
+	void sendToSocket(int client_socket, std::string message);
 
   private: // commands
-	void ping(Client *client);
-	void handleAuthentification(Client *client);
-	void handleCommand(Client *client);
+	void ping(Client *client, std::string cmd);
+	void handleCommand(Client *client, std::string cmd);
 };
 
 #endif

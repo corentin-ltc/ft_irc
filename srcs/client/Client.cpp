@@ -52,6 +52,11 @@ bool Client::isMessageDone()
 {
 	if (this->message.empty() || this->message[this->message.size() - 1] != '\n') // if no \n, message not done
 		return (false);
+	if (this->message == "\n")
+	{
+		this->message.clear();
+		return (false);
+	}
 	return (true);
 }
 

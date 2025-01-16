@@ -13,11 +13,11 @@ INCLUDES =	includes
 
 ######################## SOURCES ########################
 
-SERVER = Server.cpp methods.cpp commands.cpp
+SERVER = Server.cpp handle_client.cpp commands.cpp
 
 CLIENT =	Client.cpp
 
-CHANNEL =	Channel.cpp
+CHANNEL =	
 
 UTILS = utils.cpp
 	
