@@ -32,11 +32,12 @@ class Server
 	void disconnectClient(int client_socket);
 	void disconnectAll();
 	void readClient(Client &client);
-	void sendToSocket(int client_socket, std::string message);
+	static void sendToSocket(int client_socket, std::string message);
 
   private: // commands
+	void handleCommand(Client &client, std::string cmd);
 	void ping(int client_socket, std::string cmd);
-	void handleCommand(Client *client, std::string cmd);
+	void pass(Client &client, std::string cmd);
 };
 
 #endif

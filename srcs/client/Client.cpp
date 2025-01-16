@@ -66,6 +66,6 @@ bool Client::isAuthentificated() const
 }
 void Client::authentificate()
 {
-	std::cout << "Client " << client_socket << GRE << " successfully authentificated." << WHI << std::endl;
 	authentificated = true;
+	std::cout << "Client " << client_socket << GRE << " successfully authentificated." << WHI << std::endl;
 }
