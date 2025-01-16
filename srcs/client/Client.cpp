@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "Server.hpp"
 
 Client::Client(int fd) : client_socket(fd), registered(false)
 {
@@ -33,6 +34,11 @@ int Client::getSocket() const
 void Client::setNickname(std::string nick)
 {
 	this->nickname = nick;
+}
+
+void Client::setUsername(std::string nick)
+{
+	this->username = nick;
 }
 
 void Client::setMessage(std::string new_message)
@@ -75,13 +81,18 @@ void Client::_register()
 	std::cout << "Client " << client_socket << GRE << " successfully registered." << WHI << std::endl;
 }
 
-bool Client::isCommandReady()
+void Client::setCommandReady()
 {
-	if (!registered)
-		return (false);
-	if (nickname.empty())
-		return (false);
-	if (username.empty())
-		return (false);
-	return (true);
+	if (this->command_ready)
+		return;
+	if (registered && nickname.size() && username.size())
+	{
+		this->command_ready = true;
+		Server::sendToSocket(this->client_socket, RPL_WELCOME);
+	}
+}
+
+bool Client::isCommandReady() const
+{
+	return (this->command_ready);
 }
