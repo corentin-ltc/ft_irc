@@ -3,8 +3,11 @@
 #define SEND_FLAGS 0
 
 #define ENDL "\r\n"
-#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick + ENDL
-#define PONG(token) "PING :ft_irc " + token + ENDL
+#define PONG(token) "PONG :ft_irc " + token
+#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick
+#define ERR_NEEDMOREPARAMS(command) command + " :Not enough parameters"
+#define ERR_ALREADYREGISTERED ":You may not register"
+#define ERR_PASSWDMISMATCH ":Password incorrect"
 
 #include <csignal>
 #include <cstring>
