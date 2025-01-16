@@ -4,6 +4,7 @@
 
 #define ENDL "\r\n"
 #define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick + ENDL
+#define PONG(token) "PING :ft_irc " + token + ENDL
 
 #include <csignal>
 #include <cstring>
