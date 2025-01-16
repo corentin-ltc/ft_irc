@@ -28,7 +28,7 @@ void Server::handleClient(int client_socket)
 	client->stripMessage();
 	std::vector<std::string> cmds = split(client->getMessage(), '\n');
 	for (size_t i = 0; i < cmds.size(); i++)
-		handleCommand(client, cmds[i]);
+		handleCommand(*client, cmds[i]);
 	client->clearMessage();
 }
 
@@ -49,6 +49,7 @@ void Server::readClient(Client &client)
 
 void Server::sendToSocket(int client_socket, std::string message)
 {
+	message.append(ENDL);
 	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
