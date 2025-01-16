@@ -20,18 +20,22 @@ std::string parse_password(std::string string)
 {
 	return string;
 }
+// cmd1
+// cmd2
+// cmd3
 
 std::vector<std::string> split(std::string source, char delimiter)
 {
 	std::vector<std::string> strings;
-	size_t pos = 0;
-	std::string string = source;
-	while ((pos = source.find(delimiter)) != std::string::npos)
+	std::string string;
+	size_t pos = source.find(delimiter);
+	while (pos != std::string::npos)
 	{
 		string = source.substr(0, pos);
-		strings.push_back(string);
+		if (string.empty() == false)
+			strings.push_back(string);
 		source.erase(0, pos + 1);
+		pos = source.find(delimiter);
 	}
-	strings.push_back(string);
 	return strings;
 }
