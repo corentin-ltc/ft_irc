@@ -4,10 +4,17 @@
 
 #define ENDL "\r\n"
 #define PONG(token) "PONG :ft_irc " + token
-#define RPL_WELCOME(nick) ":ft_irc 001 " + nick + ":Welcome to the network, " + nick
-#define ERR_NEEDMOREPARAMS(command) command + " :Not enough parameters"
-#define ERR_ALREADYREGISTERED ":You may not register"
-#define ERR_PASSWDMISMATCH ":Password incorrect"
+#define RPL_WELCOME " 001 :Welcome to the network! (En legend)"
+#define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
+
+// errors
+#define ERROR(reason) "ERROR :" + reason // might change to a variable
+#define ERR_NOTREGISTERED ": 451 : You have not registered"
+#define ERR_NEEDMOREPARAMS(command) ": 461 " + command + " :Not enough parameters"
+#define ERR_ALREADYREGISTERED ": 462 :Unauthorized command (already registered)"
+#define ERR_PASSWDMISMATCH ": 464 :Password incorrect"
+#define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
+#define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
 
 #include <csignal>
 #include <cstring>

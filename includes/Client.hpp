@@ -9,7 +9,8 @@ class Client
 	std::string username;
 	std::string message;
 	int client_socket;
-	bool authentificated;
+	bool registered;
+	bool command_ready;
 	bool globalOperator;
 
   public: // construct
@@ -29,13 +30,16 @@ class Client
 	std::string getUsername() const;
 	std::string getMessage() const;
 	int getSocket() const;
-	bool isAuthentificated() const;
+	bool isRegistered() const;
+	bool isCommandReady() const;
 	// setters
-	void setNickname();
-	void setUsername();
+	void setNickname(std::string);
+	void setUsername(std::string);
 	void setMessage(std::string new_message);
 	void stripMessage();
 	bool isMessageDone();
 	void clearMessage();
-	void authentificate();
+	void _register();
+	void setCommandReady();
+	// methods
 };

@@ -16,20 +16,22 @@ inline static void goto_next_word(std::string &str)
 
 void Server::handleCommand(Client &client, std::string cmd)
 {
-	// NOTE: cmds without auth
 	if (find(cmd, "CAP"))
 		return; // ignores CAP
 	if (find(cmd, "PASS"))
 		return (pass(client, cmd));
-	if (find(cmd, "USER"))
-		return;
-	if (find(cmd, "NICK"))
-		return;
 	if (find(cmd, "PING"))
 		return (ping(client.getSocket(), cmd));
-	if (client.isAuthentificated() == false)
-		return; // Renvoyer une erreur client not registered/unknown command
-	// NOTE: cmds needing authentification
+	// NOTE: cmds needing password
+	if (client.isRegistered() == false)
+		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
+	if (find(cmd, "NICK"))
+		return (nick(client, cmd));
+	if (find(cmd, "USER"))
+		return;
+	// NOTE: cmds needing full auth (nickname..)
+	if (client.isCommandReady() == false)
+		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
 	if (cmd.find("JOIN"))
 		;
 	if (cmd.find("LEAVE"))
@@ -39,18 +41,36 @@ void Server::handleCommand(Client &client, std::string cmd)
 void Server::ping(int client_socket, std::string cmd)
 {
 	goto_next_word(cmd);
-	this->sendToSocket(client_socket, PONG(cmd));
+	if (cmd.empty())
+		this->sendToSocket(client_socket, ERR_NEEDMOREPARAMS(std::string("PONG")));
+	else
+		this->sendToSocket(client_socket, PONG(cmd));
+}
+
+void Server::error(int client_socket, std::string reason)
+{
+	this->sendToSocket(client_socket, reason);
+	// this->disconnectClient(client_socket);
 }
 
 void Server::pass(Client &client, std::string cmd)
 {
 	goto_next_word(cmd);
-	if (cmd.empty())
-		this->sendToSocket(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("PASS")));
-	else if (client.isAuthentificated())
+	if (client.isRegistered())
 		this->sendToSocket(client.getSocket(), ERR_ALREADYREGISTERED);
 	else if (this->password != cmd)
 		this->sendToSocket(client.getSocket(), ERR_PASSWDMISMATCH);
 	else
-		client.authentificate();
+		client._register();
+}
+
+void Server::nick(Client &client, std::string cmd)
+{
+	std::string old_nick = client.getNickname();
+
+	goto_next_word(cmd);
+	// check for errors
+
+	client.setNickname(cmd);
+	this->sendToSocket(client.getSocket(), RPL_NICK(old_nick, cmd));
 }
