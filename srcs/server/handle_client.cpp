@@ -25,10 +25,13 @@ void Server::handleClient(int client_socket)
 	if (client->isMessageDone() == false)
 		return;
 	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();
-	client->stripMessage();
 	std::vector<std::string> cmds = split(client->getMessage(), '\n');
 	for (size_t i = 0; i < cmds.size(); i++)
+	{
+		if (cmds[i][cmds[i].size() - 1] == '\r')
+			cmds[i].erase(cmds[i].size() - 1);
 		handleCommand(*client, cmds[i]);
+	}
 	client->clearMessage();
 }
 
