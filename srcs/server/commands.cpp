@@ -46,6 +46,7 @@ void Server::handleCommand(Client &client, std::string cmd)
 		;
 	if (cmd_name == "LEAVE")
 		;
+	this->sendToSocket(client.getSocket(), ERR_UNKNOWNCOMMAND(client.getNickname(), cmd_name));
 }
 
 void Server::ping(int client_socket, std::string cmd)

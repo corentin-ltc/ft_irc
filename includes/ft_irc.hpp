@@ -8,6 +8,7 @@
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
 
 // errors
+#define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
 #define ERROR(reason) "ERROR :" + reason // might change to a variable
 #define ERR_NOTREGISTERED ": 451 : You have not registered"
 #define ERR_NEEDMOREPARAMS(command) ": 461 " + command + " :Not enough parameters"
