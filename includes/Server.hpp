@@ -22,24 +22,22 @@ class Server
 	Server(unsigned short port, std::string password);
 	~Server();
 
-  public: // methods
+  public: // init
 	void initServer();
 	void run();
 
-  private: // helpers
+  private: // client communication
 	void acceptNewClient();
 	void handleClient(int client_socket);
 	void disconnectClient(int client_socket);
 	void disconnectAll();
-	void handleClientInput(Client client, std::string input);
-	void joinChannel(Client client, std::string input);
-	Client getClient(int client_socket);
 	void readClient(Client &client);
-	void sendToSocket(int client_socket, std::string message);
+	static void sendToSocket(int client_socket, std::string message);
 
   private: // commands
-	void ping(Client *client, std::string cmd);
-	void handleCommand(Client *client, std::string cmd);
+	void handleCommand(Client &client, std::string cmd);
+	void ping(int client_socket, std::string cmd);
+	void pass(Client &client, std::string cmd);
 };
 
 #endif
