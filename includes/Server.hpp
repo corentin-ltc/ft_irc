@@ -39,6 +39,7 @@ class Server
 	void error(int client_socket, std::string reason);
 	void ping(int client_socket, std::string cmd);
 	void pass(Client &client, std::string cmd);
+	void nick(Client &client, std::string cmd);
 };
 
 #endif

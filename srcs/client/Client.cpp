@@ -1,11 +1,11 @@
 #include "Client.hpp"
 
-Client::Client(int fd) : client_socket(fd), authentificated(false)
+Client::Client(int fd) : client_socket(fd), registered(false)
 {
 	std::cerr << "[Client fd constructor]\n";
 }
 
-Client::Client() : client_socket(-1), authentificated(false)
+Client::Client() : client_socket(-1), registered(false)
 {
 	std::cerr << "[Client default constructor]\n";
 }
@@ -28,6 +28,11 @@ std::string Client::getMessage() const
 int Client::getSocket() const
 {
 	return (client_socket);
+}
+
+void Client::setNickname(std::string nick)
+{
+	this->nickname = nick;
 }
 
 void Client::setMessage(std::string new_message)
@@ -60,12 +65,23 @@ bool Client::isMessageDone()
 	return (true);
 }
 
-bool Client::isAuthentificated() const
+bool Client::isRegistered() const
 {
-	return authentificated;
+	return registered;
 }
-void Client::authentificate()
+void Client::_register()
 {
-	authentificated = true;
-	std::cout << "Client " << client_socket << GRE << " successfully authentificated." << WHI << std::endl;
+	registered = true;
+	std::cout << "Client " << client_socket << GRE << " successfully registered." << WHI << std::endl;
+}
+
+bool Client::isCommandReady()
+{
+	if (!registered)
+		return (false);
+	if (nickname.empty())
+		return (false);
+	if (username.empty())
+		return (false);
+	return (true);
 }
