@@ -25,7 +25,6 @@ inline static std::vector<std::string> get_args(std::string &str)
 
 void Server::handleCommand(Client *client, std::string cmd)
 {
-	//maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
 	if (cmd_name == "CAP")
 		return; // ignores CAP
@@ -45,8 +44,19 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
-	if (cmd_name == "LEAVE")
-		;
+	if (cmd_name == "PART")
+		return ;
+	if (cmd_name == "OPER")
+		return (oper(client, cmd));
+	// NOTE : Verify global operator before use
+	if (client->isGlobalOperator() == true)
+		handleOperatorCommand(client, cmd);
+	this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+}
+
+void Server::handleOperatorCommand(Client *client, std::string cmd)
+{
+	
 }
 
 void Server::ping(int client_socket, std::string cmd)
@@ -108,6 +118,19 @@ void Server::user(Client *client, std::string cmd)
 		client->setCommandReady();
 		// TODO: set realname to a concatenation of args[3] to args[size]
 	}
+}
+
+void Server::oper(Client *client, std::string cmd)
+{
+	std::string name = goto_next_word(cmd);
+	std::string pass = cmd;
+	std::cout << name << std::endl;
+	std::cout << pass << std::endl;
+	if (name != NAME_ADMIN || pass != PASS_ADMIN)
+		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
+	else
+		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
+	client->setGlobalOperator();
 }
 
 void Server::join(Client *client, std::string cmd)
