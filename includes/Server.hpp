@@ -5,6 +5,8 @@
 #include "ft_irc.hpp"
 #include "Channel.hpp"
 
+class Channel;
+
 class Server
 {
   public:
@@ -17,7 +19,7 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
-	std::vector<Channel> channels;
+	std::vector<Channel*> channels;
 
 
   public: // constructors
