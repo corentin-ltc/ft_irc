@@ -19,7 +19,7 @@ class Channel
         // Getter and setters:
             std::string getName(){return name;}
         // Members functions
-            void            addUser(Client &client);
+            void            addUser(Client *client);
             std::string     getUsersInChannel();
 
 		
