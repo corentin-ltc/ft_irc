@@ -76,6 +76,7 @@ void Server::pass(Client &client, std::string cmd)
 void Server::nick(Client &client, std::string cmd)
 {
 	std::string old_nick = client.getNickname();
+	std::string user = client.getUsername();
 
 	if (cmd.empty())
 		this->sendToSocket(client.getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
@@ -86,7 +87,7 @@ void Server::nick(Client &client, std::string cmd)
 	else
 	{
 		client.setNickname(cmd);
-		this->sendToSocket(client.getSocket(), RPL_NICK(old_nick, cmd));
+		this->sendToSocket(client.getSocket(), RPL_NICK(old_nick, cmd, user));
 		client.setCommandReady();
 	}
 }
@@ -107,29 +108,29 @@ void Server::user(Client &client, std::string cmd)
 	}
 }
 
-void Server::join(Client &client, std::string cmd)
-{
-	std::string channel = cmd.substr(5, cmd.size());
-	std::cout << channel << "allo\n" ;
-	if (channel.size() == 0)
-		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
-	//std::cout << channel << std::endl;
-	std::vector<Channel>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
-	{
-		if ((*it).getName() == channel)
-		{
-			std::cout << "Client " << client.getSocket() << " has join the existing channel : " << channel << std::endl;
-			(*it).addUser(client);
-			break;
-		}
-	}
-    if (it == channels.end())
-	{
-		Channel newChan(channel);
-		channels.push_back(newChan);
-		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
-		newChan.addUser(client);
+// void Server::join(Client &client, std::string cmd)
+// {
+// 	std::string channel = cmd.substr(5, cmd.size());
+// 	std::cout << channel << "allo\n" ;
+// 	if (channel.size() == 0)
+// 		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
+// 	//std::cout << channel << std::endl;
+// 	std::vector<Channel>::iterator it;
+// 	for (it = channels.begin(); it != channels.end(); it++)
+// 	{
+// 		if ((*it).getName() == channel)
+// 		{
+// 			std::cout << "Client " << client.getSocket() << " has join the existing channel : " << channel << std::endl;
+// 			(*it).addUser(client);
+// 			break;
+// 		}
+// 	}
+//     if (it == channels.end())
+// 	{
+// 		Channel newChan(channel);
+// 		channels.push_back(newChan);
+// 		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
+// 		newChan.addUser(client);
 
-	}
-}
+// 	}
+// }
