@@ -25,6 +25,7 @@ inline static std::vector<std::string> get_args(std::string &str)
 
 void Server::handleCommand(Client &client, std::string cmd)
 {
+	//maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
 	if (cmd_name == "CAP")
 		return; // ignores CAP
