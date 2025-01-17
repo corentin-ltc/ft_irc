@@ -23,7 +23,7 @@ inline static std::vector<std::string> get_args(std::string &str)
 	return (args);
 }
 
-void Server::handleCommand(Client &client, std::string cmd)
+void Server::handleCommand(Client *client, std::string cmd)
 {
 	//maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
@@ -32,17 +32,17 @@ void Server::handleCommand(Client &client, std::string cmd)
 	if (cmd_name == "PASS")
 		return (pass(client, cmd));
 	if (cmd_name == "PING")
-		return (ping(client.getSocket(), cmd));
+		return (ping(client->getSocket(), cmd));
 	// NOTE: cmds needing password
-	if (client.isRegistered() == false)
-		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
+	if (client->isRegistered() == false)
+		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "NICK")
 		return (nick(client, cmd));
 	if (cmd_name == "USER")
 		return (user(client, cmd));
 	// NOTE: cmds needing full auth (nickname..)
-	if (client.isCommandReady() == false)
-		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
+	if (client->isCommandReady() == false)
+		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
 	if (cmd_name == "LEAVE")
@@ -63,59 +63,59 @@ void Server::error(int client_socket, std::string reason)
 	// this->disconnectClient(client_socket);
 }
 
-void Server::pass(Client &client, std::string cmd)
+void Server::pass(Client *client, std::string cmd)
 {
-	if (client.isRegistered())
-		this->sendToSocket(client.getSocket(), ERR_ALREADYREGISTERED);
+	if (client->isRegistered())
+		this->sendToSocket(client->getSocket(), ERR_ALREADYREGISTERED);
 	else if (this->password != cmd)
-		this->sendToSocket(client.getSocket(), ERR_PASSWDMISMATCH);
+		this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH);
 	else
-		client._register();
+		client->_register();
 }
 
-void Server::nick(Client &client, std::string cmd)
+void Server::nick(Client *client, std::string cmd)
 {
-	std::string old_nick = client.getNickname();
-	std::string user = client.getUsername();
+	std::string old_nick = client->getNickname();
+	std::string user = client->getUsername();
 
 	if (cmd.empty())
-		this->sendToSocket(client.getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
+		this->sendToSocket(client->getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
 	// TODO: Check format (no leading ":" or "#")
 	else if (cmd.find_first_of(' ') != std::string::npos)
-		this->sendToSocket(client.getSocket(), ERR_ERRONEUSENICKNAME(old_nick, cmd));
+		this->sendToSocket(client->getSocket(), ERR_ERRONEUSENICKNAME(old_nick, cmd));
 	// TODO: Check duplicate (ERR_NICKNAMEINUSE)
 	else
 	{
-		client.setNickname(cmd);
-		this->sendToSocket(client.getSocket(), RPL_NICK(old_nick, cmd, user));
-		client.setCommandReady();
+		client->setNickname(cmd);
+		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd, user));
+		client->setCommandReady();
 	}
 }
 
-void Server::user(Client &client, std::string cmd)
+void Server::user(Client *client, std::string cmd)
 {
 	std::vector<std::string> args = get_args(cmd);
 
-	if (client.isCommandReady())
-		this->sendToSocket(client.getSocket(), ERR_ALREADYREGISTERED);
+	if (client->isCommandReady())
+		this->sendToSocket(client->getSocket(), ERR_ALREADYREGISTERED);
 	else if (args.size() < 4)
-		this->sendToSocket(client.getSocket(), ERR_NEEDMOREPARAMS(std::string("USER")));
+		this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("USER")));
 	else
 	{
-		client.setUsername(args[0]);
-		client.setCommandReady();
+		client->setUsername(args[0]);
+		client->setCommandReady();
 		// TODO: set realname to a concatenation of args[3] to args[size]
 	}
 }
 
-void Server::join(Client &client, std::string cmd)
+void Server::join(Client *client, std::string cmd)
 {
 
 	std::string channel = cmd.substr(0, cmd.find(' '));
 	// TODO: Check that the server name respects the norm
 	if (channel.size() == 0)
 	{
-		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
+		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
 	}
 	std::vector<Channel*>::iterator it;
