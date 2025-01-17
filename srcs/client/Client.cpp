@@ -21,6 +21,11 @@ std::string Client::getNickname() const
 	return (nickname);
 }
 
+std::string Client::getUsername() const
+{
+	return (username);
+}
+
 std::string Client::getMessage() const
 {
 	return (message);

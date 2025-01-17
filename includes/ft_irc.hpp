@@ -5,7 +5,7 @@
 #define ENDL "\r\n"
 #define PONG(token) "PONG :ft_irc " + token
 #define RPL_WELCOME(client, nick) ":" + client + " 001 :Welcome to the ft_irc Network, " + nick
-#define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
+#define RPL_NICK(old_nick, new_nick, user) ":" + old_nick + "!" + user + "@ft_irc NICK " + new_nick
 
 // errors
 #define ERROR(reason) "ERROR :" + reason // might change to a variable
