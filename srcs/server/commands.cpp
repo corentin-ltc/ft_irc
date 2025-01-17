@@ -77,8 +77,6 @@ void Server::nick(Client *client, std::string cmd)
 {
 
 	std::string old_nick = client->getNickname();
-	std::string user = client->getUsername();
-
 
 	if (cmd.empty())
 		this->sendToSocket(client->getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
@@ -90,7 +88,7 @@ void Server::nick(Client *client, std::string cmd)
 	{
 
 		client->setNickname(cmd);
-		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd, user));
+		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
 
 	}
