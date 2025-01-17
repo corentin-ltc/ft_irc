@@ -30,6 +30,7 @@ class Server
 	void initServer();
 	void run();
 	static void sendToSocket(int client_socket, std::string message);
+	void printInfos() const;
 
   private: // client communication
 	void acceptNewClient();

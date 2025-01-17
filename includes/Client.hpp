@@ -32,6 +32,7 @@ class Client
 	std::string getNickname() const;
 	std::string getUsername() const;
 	std::string getMessage() const;
+	std::string getClient() const;
 	std::vector<Channel *> &getChannels();
 	int getSocket() const;
 	bool isRegistered() const;
@@ -46,4 +47,5 @@ class Client
 	void _register();
 	void setCommandReady();
 	// methods
+	Channel findChannel(std::string name);
 };

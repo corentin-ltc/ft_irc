@@ -27,6 +27,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 {
 	// maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
+	if (cmd_name == "INFO")
+		return (this->printInfos());
 	if (cmd_name == "CAP")
 		return; // ignores CAP
 	if (cmd_name == "PASS")
@@ -131,5 +133,6 @@ void Server::join(Client *client, std::string cmd)
 	// Creating a new channel
 	Channel newChan(channel);
 	newChan.addUser(client);
+	client->getChannels().push_back(&newChan);
 	channels.push_back(newChan);
 }

@@ -24,14 +24,14 @@ void Channel::addUser(Client *client)
 	Server::sendToSocket(client->getSocket(), message);
 }
 
-std::string Channel::getUsersInChannel()
+std::string Channel::getUsersInChannel() const
 {
 	std::string list = "";
 
-	for (std::vector<Client *>::iterator it = users.begin(); it != users.end(); it++)
+	for (size_t i = 0; i < this->users.size(); i++)
 	{
-		list.append((*it)->getNickname());
-		if (it + 1 != users.end())
+		list.append(users[i]->getNickname());
+		if (i + 1 < this->users.size())
 			list.append(" ");
 	}
 	return list;
