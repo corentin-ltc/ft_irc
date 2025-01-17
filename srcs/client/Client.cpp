@@ -101,3 +101,8 @@ bool Client::isCommandReady() const
 {
 	return (this->command_ready);
 }
+
+std::vector<Channel *> &Client::getChannels()
+{
+	return (this->channels);
+}
