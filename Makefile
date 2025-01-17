@@ -17,7 +17,7 @@ SERVER = Server.cpp handle_client.cpp commands.cpp
 
 CLIENT =	Client.cpp
 
-CHANNEL =	
+CHANNEL =	Channel.cpp
 
 UTILS = utils.cpp
 	
