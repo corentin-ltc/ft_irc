@@ -4,9 +4,9 @@ NAME = ircserv
 
 CC = c++
 
-FLAGS = -Wall -Wextra -Werror # errors
+FLAGS = #-Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
-FLAGS += -Wshadow #-pedantic # syntax helper (can remove)
+FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
 FLAGS += -g # opti
 
 INCLUDES =	includes
