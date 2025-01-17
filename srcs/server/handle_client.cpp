@@ -67,8 +67,8 @@ void Server::disconnectClient(Client *client)
 	// NOTE: Close the socket
 	close(client->getSocket());
 	// TODO: disconnect from all channels (also send a message)
-	for (size_t i = 0; i < client->getChannels().size(); i++)
-		client->getChannels()[i]->disconnectUser(client);
+	while (client->getChannels().size() > 0)
+		client->getChannels()[0]->disconnectUser(client);
 	// NOTE: Remove from clients vector
 	for (size_t i = 0; i < clients.size(); i++)
 		if (client == &clients[i])

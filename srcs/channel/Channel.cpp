@@ -40,16 +40,29 @@ std::string Channel::getUsersInChannel() const
 void Channel::disconnectUser(Client *client)
 {
 	// possible BUG: erasing mid-loop might cause issues
+	// known BUG: Crashes when a user is connected to multiple channels
 	// NOTE: removes from users list
-	for (size_t i = 0; i < users.size(); i++)
+	for (size_t i = 0; i < users.size();)
+	{
 		if (client == users[i])
 			users.erase(users.begin() + i);
+		else
+			i++;
+	}
 	// NOTE: removes from operators list
-	for (size_t i = 0; i < operators.size(); i++)
+	for (size_t i = 0; i < operators.size();)
+	{
 		if (client == operators[i])
 			operators.erase(operators.begin() + i);
+		else
+			i++;
+	}
 	// NOTE: removes channel from client
-	for (size_t i = 0; i < client->getChannels().size(); i++)
+	for (size_t i = 0; i < client->getChannels().size();)
+	{
 		if (client->getChannels()[i] == this)
 			client->getChannels().erase(client->getChannels().begin() + i);
+		else
+			i++;
+	}
 }
