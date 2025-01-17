@@ -133,6 +133,7 @@ void Server::join(Client *client, std::string cmd)
 	// Creating a new channel
 	Channel newChan(channel);
 	newChan.addUser(client);
-	client->getChannels().push_back(&newChan);
 	channels.push_back(newChan);
+	// Adding the channel to the user personal list
+	client->getChannels().push_back(&channels[channels.size() - 1]);
 }
