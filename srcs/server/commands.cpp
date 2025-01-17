@@ -44,7 +44,7 @@ void Server::handleCommand(Client &client, std::string cmd)
 	if (client.isCommandReady() == false)
 		return (this->error(client.getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
-		;
+		return (join(client, cmd));
 	if (cmd_name == "LEAVE")
 		;
 }
@@ -109,27 +109,29 @@ void Server::user(Client &client, std::string cmd)
 
 void Server::join(Client &client, std::string cmd)
 {
-	std::string channel = cmd.substr(5, cmd.size());
-	std::cout << channel << "allo\n" ;
+
+	std::string channel = cmd.substr(0, cmd.find(' '));
+	// TODO: Check that the server name respects the norm
 	if (channel.size() == 0)
+	{
 		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
-	//std::cout << channel << std::endl;
-	std::vector<Channel>::iterator it;
+		return;
+	}
+	std::vector<Channel*>::iterator it;
 	for (it = channels.begin(); it != channels.end(); it++)
 	{
-		if ((*it).getName() == channel)
+		if ((*it)->getName() == channel)
 		{
-			std::cout << "Client " << client.getSocket() << " has join the existing channel : " << channel << std::endl;
-			(*it).addUser(client);
-			break;
+			// Joining an existing channel
+			(*it)->addUser(client);
+			return;
 		}
 	}
     if (it == channels.end())
 	{
-		Channel newChan(channel);
+		// Creating a new channel
+		Channel *newChan = new Channel(channel);
 		channels.push_back(newChan);
-		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
-		newChan.addUser(client);
-
+		newChan->addUser(client);
 	}
 }
