@@ -25,7 +25,7 @@ inline static std::vector<std::string> get_args(std::string &str)
 
 void Server::handleCommand(Client *client, std::string cmd)
 {
-	//maybe change name gotonextword to gotocurrentword to clarify
+	// maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
 	if (cmd_name == "CAP")
 		return; // ignores CAP
@@ -90,7 +90,6 @@ void Server::nick(Client *client, std::string cmd)
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
-
 	}
 }
 
@@ -120,21 +119,17 @@ void Server::join(Client *client, std::string cmd)
 		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
 	}
-	std::vector<Channel*>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
+	for (size_t i = 0; i < channels.size(); i++)
 	{
-		if ((*it)->getName() == channel)
+		if (channels[i].getName() == channel)
 		{
 			// Joining an existing channel
-			(*it)->addUser(client);
+			channels[i].addUser(client);
 			return;
 		}
 	}
-    if (it == channels.end())
-	{
-		// Creating a new channel
-		Channel *newChan = new Channel(channel);
-		channels.push_back(newChan);
-		newChan->addUser(client);
-	}
+	// Creating a new channel
+	Channel newChan(channel);
+	newChan.addUser(client);
+	channels.push_back(newChan);
 }
