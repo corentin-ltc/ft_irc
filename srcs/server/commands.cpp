@@ -86,11 +86,9 @@ void Server::nick(Client *client, std::string cmd)
 	// TODO: Check duplicate (ERR_NICKNAMEINUSE)
 	else
 	{
-
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
-
 	}
 }
 
