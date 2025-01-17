@@ -24,7 +24,7 @@ void Server::handleClient(int client_socket)
 	this->readClient(*client);
 	if (client->isMessageDone() == false)
 		return;
-	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();
+	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();//DEBUG
 	std::vector<std::string> cmds = split(client->getMessage(), '\n');
 	for (size_t i = 0; i < cmds.size(); i++)
 	{
@@ -53,7 +53,7 @@ void Server::readClient(Client &client)
 void Server::sendToSocket(int client_socket, std::string message)
 {
 	message.append(ENDL);
-	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;
+	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;//DEBUG
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
