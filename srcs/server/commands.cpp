@@ -105,3 +105,30 @@ void Server::user(Client &client, std::string cmd)
 		// TODO: set realname to a concatenation of args[3] to args[size]
 	}
 }
+
+void Server::join(Client &client, std::string cmd)
+{
+	std::string channel = cmd.substr(5, cmd.size());
+	std::cout << channel << "allo\n" ;
+	if (channel.size() == 0)
+		std::cout << client.getSocket() << "Usage: /join <channel_name>" << std::endl;
+	//std::cout << channel << std::endl;
+	std::vector<Channel>::iterator it;
+	for (it = channels.begin(); it != channels.end(); it++)
+	{
+		if ((*it).getName() == channel)
+		{
+			std::cout << "Client " << client.getSocket() << " has join the existing channel : " << channel << std::endl;
+			(*it).addUser(client);
+			break;
+		}
+	}
+    if (it == channels.end())
+	{
+		Channel newChan(channel);
+		channels.push_back(newChan);
+		std::cout << "Client " << client.getSocket() << " successfully created the channel : " << channel << std::endl;
+		newChan.addUser(client);
+
+	}
+}
