@@ -3,6 +3,7 @@
 
 #include "Client.hpp"
 #include "ft_irc.hpp"
+#include "Channel.hpp"
 
 class Server
 {
@@ -16,6 +17,8 @@ class Server
 	struct sockaddr_in server_addr;
 	std::vector<Client> clients;
 	std::vector<struct pollfd> fds;
+	std::vector<Channel> channels;
+
 
   public: // constructors
 	Server();
@@ -41,6 +44,8 @@ class Server
 	void pass(Client &client, std::string cmd);
 	void nick(Client &client, std::string cmd);
 	void user(Client &client, std::string cmd);
+	void join(Client &client, std::string cmd);
+
 };
 
 #endif
