@@ -101,3 +101,13 @@ bool Client::isCommandReady() const
 {
 	return (this->command_ready);
 }
+
+bool Client::isGlobalOperator() const
+{
+	return globalOperator;
+}
+
+void Client::setGlobalOperator()
+{
+	this->globalOperator = true;
+}
