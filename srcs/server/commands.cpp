@@ -2,6 +2,7 @@
 #include "ft_irc.hpp"
 
 // helper function that returns the current word and erase it from the source string
+// maybe change name gotonextword to gotocurrentword to clarify
 inline static std::string goto_next_word(std::string &str)
 {
 	size_t next_word = str.find_first_of(' ');
@@ -25,7 +26,6 @@ inline static std::vector<std::string> get_args(std::string &str)
 
 void Server::handleCommand(Client *client, std::string cmd)
 {
-	// maybe change name gotonextword to gotocurrentword to clarify
 	std::string cmd_name = goto_next_word(cmd);
 	if (cmd_name == "INFO")
 		return (this->printInfos());
@@ -47,8 +47,59 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
-	if (cmd_name == "LEAVE")
-		;
+	if (cmd_name == "PRIVMSG")
+		return (privmsg(client, cmd));
+	if (cmd_name == "PART")
+		return ;
+	handleOperatorCommand(client, cmd, cmd_name);
+  this->sendToSocket(client.getSocket(), ERR_UNKNOWNCOMMAND(client.getNickname(), cmd_name));
+}
+
+void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
+{
+	if (cmd_name == "OPER")
+		return (oper(client, cmd));
+	// NOTE : Verify global operator before use
+	if (client->isGlobalOperator() == false)
+		this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	if (cmd_name == "KICK")
+		return (kick(client, cmd));
+	if (cmd_name == "INVITE")
+		return (invite(client, cmd));
+	if (cmd_name == "TOPIC")
+		return (topic(client, cmd));
+	if (cmd_name == "MODE")
+		return (mode(client, cmd));
+}
+
+void Server::privmsg(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	sendToSocket(client->getSocket(), ":" + name + " PRIVMSG " + channel + " " + cmd);
+}
+
+void Server::kick(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	std::string target = goto_next_word(cmd);
+	sendToSocket(client->getSocket(), ":" + name + " KICK " + channel + target + cmd);
+}
+
+void Server::invite(Client *client, std::string cmd)
+{
+	
+}
+
+void Server::topic(Client *client, std::string cmd)
+{
+	
+}
+
+void Server::mode(Client *client, std::string cmd)
+{
+	
 }
 
 void Server::ping(int client_socket, std::string cmd)
@@ -109,6 +160,17 @@ void Server::user(Client *client, std::string cmd)
 		client->setCommandReady();
 		// TODO: set realname to a concatenation of args[3] to args[size]
 	}
+}
+
+void Server::oper(Client *client, std::string cmd)
+{
+	std::string name = goto_next_word(cmd);
+	std::string pass = cmd;
+	if (name != NAME_ADMIN || pass != PASS_ADMIN)
+		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
+	else
+		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
+	client->setGlobalOperator();
 }
 
 void Server::join(Client *client, std::string cmd)

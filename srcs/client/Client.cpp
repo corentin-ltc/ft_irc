@@ -111,3 +111,12 @@ std::string Client::getClient() const
 {
 	return (nickname + "!" + username + "@localhost");
 }
+bool Client::isGlobalOperator() const
+{
+	return globalOperator;
+}
+
+void Client::setGlobalOperator()
+{
+	this->globalOperator = true;
+}

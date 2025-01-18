@@ -19,11 +19,6 @@ class Client
   public: // construct
 	Client(int fd);
 
-	bool isGlobalOperator()
-	{
-		return globalOperator;
-	};
-
 	Client();
 	~Client();
 
@@ -37,10 +32,12 @@ class Client
 	int getSocket() const;
 	bool isRegistered() const;
 	bool isCommandReady() const;
+	bool isGlobalOperator() const;
 	// setters
 	void setNickname(std::string);
 	void setUsername(std::string);
 	void setMessage(std::string new_message);
+	void setGlobalOperator();
 	void stripMessage();
 	bool isMessageDone();
 	void clearMessage();
