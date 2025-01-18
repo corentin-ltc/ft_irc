@@ -41,7 +41,7 @@ class Server
 
   private: // commands
 	void handleCommand(Client *client, std::string cmd);
-	void handleOperatorCommand(Client *client, std::string cmd);
+	void handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name);
 	void error(int client_socket, std::string reason);
 	void ping(int client_socket, std::string cmd);
 	void pass(Client *client, std::string cmd);
@@ -49,6 +49,11 @@ class Server
 	void user(Client *client, std::string cmd);
 	void oper(Client *client, std::string cmd);
 	void join(Client *client, std::string cmd);
+	void privmsg(Client *client, std::string cmd);
+	void kick(Client *client, std::string cmd);
+	void invite(Client *client, std::string cmd);
+	void topic(Client *client, std::string cmd);
+	void mode(Client *client, std::string cmd);
 
 };
 

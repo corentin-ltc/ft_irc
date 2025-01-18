@@ -44,17 +44,56 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
+	if (cmd_name == "PRIVMSG")
+		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
 		return ;
+	handleOperatorCommand(client, cmd, cmd_name);
+}
+
+void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
+{
 	if (cmd_name == "OPER")
 		return (oper(client, cmd));
 	// NOTE : Verify global operator before use
-	if (client->isGlobalOperator() == true)
-		handleOperatorCommand(client, cmd);
-	this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	if (client->isGlobalOperator() == false)
+		this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	if (cmd_name == "KICK")
+		return (kick(client, cmd));
+	if (cmd_name == "INVITE")
+		return (invite(client, cmd));
+	if (cmd_name == "TOPIC")
+		return (topic(client, cmd));
+	if (cmd_name == "MODE")
+		return (mode(client, cmd));
 }
 
-void Server::handleOperatorCommand(Client *client, std::string cmd)
+void Server::privmsg(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	sendToSocket(client->getSocket(), ":" + name + " PRIVMSG " + channel + " " + cmd);
+}
+
+void Server::kick(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	std::string target = goto_next_word(cmd);
+	sendToSocket(client->getSocket(), ":" + name + " KICK #OK davli :non mais ok");
+}
+
+void Server::invite(Client *client, std::string cmd)
+{
+	
+}
+
+void Server::topic(Client *client, std::string cmd)
+{
+	
+}
+
+void Server::mode(Client *client, std::string cmd)
 {
 	
 }
@@ -124,8 +163,6 @@ void Server::oper(Client *client, std::string cmd)
 {
 	std::string name = goto_next_word(cmd);
 	std::string pass = cmd;
-	std::cout << name << std::endl;
-	std::cout << pass << std::endl;
 	if (name != NAME_ADMIN || pass != PASS_ADMIN)
 		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
 	else
