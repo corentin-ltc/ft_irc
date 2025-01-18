@@ -1,7 +1,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-Client::Client(int fd) : client_socket(fd), registered(false)
+Client::Client(int fd) : client_socket(fd), registered(false), globalOperator(false), command_ready(false)
 {
 	std::cerr << "[Client fd constructor]\n";
 }
@@ -19,6 +19,11 @@ Client::~Client()
 std::string Client::getNickname() const
 {
 	return (nickname);
+}
+
+std::string Client::getUsername() const
+{
+	return (username);
 }
 
 std::string Client::getMessage() const
@@ -95,4 +100,14 @@ void Client::setCommandReady()
 bool Client::isCommandReady() const
 {
 	return (this->command_ready);
+}
+
+bool Client::isGlobalOperator() const
+{
+	return globalOperator;
+}
+
+void Client::setGlobalOperator()
+{
+	this->globalOperator = true;
 }

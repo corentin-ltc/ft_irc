@@ -4,9 +4,9 @@ NAME = ircserv
 
 CC = c++
 
-FLAGS = -Wall -Wextra -Werror # errors
+FLAGS = #-Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
-FLAGS += -Wshadow #-pedantic # syntax helper (can remove)
+FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
 FLAGS += -g # opti
 
 INCLUDES =	includes
@@ -17,7 +17,7 @@ SERVER = Server.cpp handle_client.cpp commands.cpp
 
 CLIENT =	Client.cpp
 
-CHANNEL =	
+CHANNEL =	Channel.cpp
 
 UTILS = utils.cpp
 	

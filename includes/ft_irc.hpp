@@ -4,8 +4,9 @@
 
 #define ENDL "\r\n"
 #define PONG(token) "PONG :ft_irc " + token
-#define RPL_WELCOME(client, nick) ":" + client + " 001 :Welcome to the ft_irc Network, " + nick
+#define RPL_WELCOME(client, nick) ":" + client + " 001 " + nick + " :Welcome to ft_irc, " + nick
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
+#define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
 
 // errors
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
@@ -16,6 +17,10 @@
 #define ERR_PASSWDMISMATCH ": 464 :Password incorrect"
 #define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
+#define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
+
+#define NAME_ADMIN "admin"
+#define PASS_ADMIN "admin"
 
 #include <csignal>
 #include <cstring>
