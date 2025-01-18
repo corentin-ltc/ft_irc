@@ -2,6 +2,8 @@
 
 #include "ft_irc.hpp"
 
+class Channel;
+
 class Client
 {
   private:
@@ -12,7 +14,7 @@ class Client
 	bool registered;
 	bool command_ready;
 	bool globalOperator;
-	
+	std::vector<Channel *> channels;
 
   public: // construct
 	Client(int fd);
@@ -25,6 +27,8 @@ class Client
 	std::string getNickname() const;
 	std::string getUsername() const;
 	std::string getMessage() const;
+	std::string getClient() const;
+	std::vector<Channel *> &getChannels();
 	int getSocket() const;
 	bool isRegistered() const;
 	bool isCommandReady() const;
@@ -40,4 +44,5 @@ class Client
 	void _register();
 	void setCommandReady();
 	// methods
+	Channel findChannel(std::string name);
 };

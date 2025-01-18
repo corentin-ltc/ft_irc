@@ -2,6 +2,7 @@
 #include "ft_irc.hpp"
 
 // helper function that returns the current word and erase it from the source string
+// maybe change name gotonextword to gotocurrentword to clarify
 inline static std::string goto_next_word(std::string &str)
 {
 	size_t next_word = str.find_first_of(' ');
@@ -26,6 +27,8 @@ inline static std::vector<std::string> get_args(std::string &str)
 void Server::handleCommand(Client *client, std::string cmd)
 {
 	std::string cmd_name = goto_next_word(cmd);
+	if (cmd_name == "INFO")
+		return (this->printInfos());
 	if (cmd_name == "CAP")
 		return; // ignores CAP
 	if (cmd_name == "PASS")
@@ -140,7 +143,6 @@ void Server::nick(Client *client, std::string cmd)
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
-
 	}
 }
 
@@ -181,21 +183,19 @@ void Server::join(Client *client, std::string cmd)
 		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
 	}
-	std::vector<Channel*>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
+	for (size_t i = 0; i < channels.size(); i++)
 	{
-		if ((*it)->getName() == channel)
+		if (channels[i].getName() == channel)
 		{
 			// Joining an existing channel
-			(*it)->addUser(client);
+			channels[i].addUser(client);
 			return;
 		}
 	}
-    if (it == channels.end())
-	{
-		// Creating a new channel
-		Channel *newChan = new Channel(channel);
-		channels.push_back(newChan);
-		newChan->addUser(client);
-	}
+	// Creating a new channel
+	Channel newChan(channel);
+	newChan.addUser(client);
+	channels.push_back(newChan);
+	// Adding the channel to the user personal list
+	client->getChannels().push_back(&channels[channels.size() - 1]);
 }
