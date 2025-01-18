@@ -12,6 +12,7 @@ class Client
 	bool registered;
 	bool command_ready;
 	bool globalOperator;
+	
 
   public: // construct
 	Client(int fd);
