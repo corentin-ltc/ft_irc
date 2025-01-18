@@ -80,7 +80,7 @@ void Server::kick(Client *client, std::string cmd)
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
 	std::string target = goto_next_word(cmd);
-	sendToSocket(client->getSocket(), ":" + name + " KICK #OK davli :non mais ok");
+	sendToSocket(client->getSocket(), ":" + name + " KICK " + channel + target + cmd);
 }
 
 void Server::invite(Client *client, std::string cmd)
