@@ -47,7 +47,7 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
-		return ;
+		return (part(client, cmd));
 	handleOperatorCommand(client, cmd, cmd_name);
   this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
@@ -77,6 +77,14 @@ void Server::privmsg(Client *client, std::string cmd)
 	for (int i = 4; i <= clients.size() + 3; i++)
 		if (i != client->getSocket())
 			sendToSocket(i, ":" + name + " PRIVMSG " + channel + " " + cmd);
+}
+
+void Server::part(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	for (int i = 4; i <= clients.size() + 3; i++)
+		sendToSocket(i, ":" + name + " PART " + channel + " " + cmd);
 }
 
 void Server::kick(Client *client, std::string cmd)

@@ -50,6 +50,7 @@ class Server
 	void oper(Client *client, std::string cmd);
 	void join(Client *client, std::string cmd);
 	void privmsg(Client *client, std::string cmd);
+	void part(Client *client, std::string cmd);
 	void kick(Client *client, std::string cmd);
 	void invite(Client *client, std::string cmd);
 	void topic(Client *client, std::string cmd);
