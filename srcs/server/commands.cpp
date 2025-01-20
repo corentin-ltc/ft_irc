@@ -220,10 +220,11 @@ void Server::part(Client *client, std::string cmd)
 		return; // sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL)
 	// TODO: Check if the user is inside the channel
 	if (channel->findUser(client) == NULL)
-		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL)
-	// TODO : Remove the user from the channel list
+		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
+				// TODO : Remove the user from the channel list
+	channel->disconnectUser(client);
 
 	// TODO : Send the Part message to those in the channel only
 	for (int i = 0; i < clients.size(); i++)
-		sendToSocket(clients[i].getSocket(), ":" + name + " PART " + channel_name + " " + cmd);
+		sendToSocket(clients[i].getSocket(), ":" + client->getClientString() + " PART " + channel_name + " " + cmd);
 }

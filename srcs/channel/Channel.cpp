@@ -57,7 +57,7 @@ std::string Channel::getUsersString()
 
 void Channel::disconnectUser(Client *client)
 {
-	// TODO: enlever de la liste des users
+	// NOTE: enlever de la liste des users
 	for (size_t i = 0; i < users.size(); i++)
 	{
 		if (client == users[i])
@@ -66,7 +66,7 @@ void Channel::disconnectUser(Client *client)
 			break;
 		}
 	}
-	// TODO: enlever de la liste des operators
+	// NOTE: enlever de la liste des operators
 	for (size_t i = 0; i < operators.size(); i++)
 	{
 		if (client == operators[i])
