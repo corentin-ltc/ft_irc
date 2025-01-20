@@ -56,10 +56,26 @@ void Server::sendToSocket(int client_socket, std::string message)
 
 void Server::disconnectClient(Client *client)
 {
-	// TODO: enlever du pollfd
-	// TODO: deco de chaque chan
+	// NOTE: enlever des pollfd
+	for (size_t i = 0; i < this->fds.size(); i++)
+	{
+		if (this->fds[i].fd == client->getSocket())
+		{
+			this->fds.erase(this->fds.begin() + i);
+			break;
+		}
+	}
+	// NOTE: deco de chaque chan
 	client->leaveAllChannels();
-	// TODO: enlever des users
+	// NOTE: enlever des users
+	for (size_t i = 0; i < this->clients.size(); i++)
+	{
+		if (this->clients[i] == client)
+		{
+			this->clients.erase(this->clients.begin() + i);
+			break;
+		}
+	}
 }
 
 void Server::disconnectAll()
