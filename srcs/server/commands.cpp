@@ -26,6 +26,8 @@ inline static std::vector<std::string> get_args(std::string &str)
 void Server::handleCommand(Client *client, std::string cmd)
 {
 	std::string cmd_name = goto_next_word(cmd);
+	if (cmd_name == "INFO" || cmd_name == "admin")
+		return (printInfos());
 	if (cmd_name == "CAP")
 		return; // ignores CAP
 	if (cmd_name == "PASS")
@@ -181,9 +183,9 @@ void Server::oper(Client *client, std::string cmd)
 void Server::join(Client *client, std::string cmd)
 {
 
-	std::string channel = cmd.substr(0, cmd.find(' '));
+	std::string channel_name = cmd.substr(0, cmd.find(' '));
 	// TODO: Check that the server name respects the norm
-	if (channel.size() == 0)
+	if (channel_name.size() == 0)
 	{
 		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
@@ -191,7 +193,7 @@ void Server::join(Client *client, std::string cmd)
 	std::vector<Channel *>::iterator it;
 	for (it = channels.begin(); it != channels.end(); it++)
 	{
-		if ((*it)->getName() == channel)
+		if ((*it)->getName() == channel_name)
 		{
 			// Joining an existing channel
 			(*it)->addUser(client);
@@ -201,8 +203,9 @@ void Server::join(Client *client, std::string cmd)
 	if (it == channels.end())
 	{
 		// Creating a new channel
-		Channel *newChan = new Channel(channel);
-		channels.push_back(newChan);
+		Channel *newChan = new Channel(channel_name);
 		newChan->addUser(client);
+		channels.push_back(newChan);
+		client->addChannel(newChan);
 	}
 }

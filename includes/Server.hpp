@@ -34,6 +34,7 @@ class Server
 	Client *findClient(int client_socket);
 	Client *findClient(std::string nickname);
 	Channel *findChannel(std::string name);
+	void printInfos() const;
 
   private: // client communication
 	void acceptNewClient();
