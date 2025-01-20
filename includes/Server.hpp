@@ -39,7 +39,7 @@ class Server
   private: // client communication
 	void acceptNewClient();
 	void handleClient(int client_socket);
-	void disconnectClient(int client_socket);
+	void disconnectClient(Client *client);
 	void disconnectAll();
 	void readClient(Client *client);
 
