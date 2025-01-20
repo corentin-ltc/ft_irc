@@ -222,9 +222,7 @@ void Server::part(Client *client, std::string cmd)
 	if (channel->findUser(client) == NULL)
 		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
 				// TODO : Remove the user from the channel list
+	channel->sendToChannel(RPL_PART(client->getClientString(), channel_name));
 	channel->disconnectUser(client);
-
 	// TODO : Send the Part message to those in the channel only
-	for (int i = 0; i < clients.size(); i++)
-		sendToSocket(clients[i].getSocket(), ":" + client->getClientString() + " PART " + channel_name + " " + cmd);
 }
