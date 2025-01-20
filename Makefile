@@ -7,13 +7,14 @@ CC = c++
 FLAGS = #-Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
 FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
-FLAGS += -g # opti
+FLAGS += -g3 # opti
+# FLAGS += -fsanitize=address,leak,undefined #sanitize
 
 INCLUDES =	includes
 
 ######################## SOURCES ########################
 
-SERVER = Server.cpp handle_client.cpp commands.cpp
+SERVER = Server.cpp handle_client.cpp commands.cpp utils.cpp
 
 CLIENT =	Client.cpp
 

@@ -8,23 +8,20 @@ void Server::acceptNewClient()
 	client_socket = accept(server_socket, NULL, NULL);
 	if (-1 == client_socket)
 		throw std::runtime_error("accept");
-	clients.push_back(new Client(client_socket));
+	clients.push_back(Client(client_socket));
 	fds.push_back((struct pollfd){.fd = client_socket, .events = POLLIN, .revents = 0});
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 }
 
 void Server::handleClient(int client_socket)
 {
-	// maybe put this inside a findClient(int fd) function
-	Client *client ;
-	for (size_t i = 0; i < this->clients.size(); i++)
-		if (this->clients[i]->getSocket() == client_socket)
-			client = this->clients[i];
-
+	Client *client = findClient(client_socket);
+	if (!client)
+		return;
 	this->readClient(client);
 	if (client->isMessageDone() == false)
 		return;
-	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();//DEBUG
+	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage(); // DEBUG
 	std::vector<std::string> cmds = split(client->getMessage(), '\n');
 	for (size_t i = 0; i < cmds.size(); i++)
 	{
@@ -53,7 +50,7 @@ void Server::readClient(Client *client)
 void Server::sendToSocket(int client_socket, std::string message)
 {
 	message.append(ENDL);
-	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;//DEBUG
+	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message; // DEBUG
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
