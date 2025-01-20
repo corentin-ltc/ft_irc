@@ -77,7 +77,7 @@ void Server::privmsg(Client *client, std::string cmd)
 	// TODO: send to user or channel
 	Channel *channel = findChannel(goto_next_word(cmd));
 	// TODO: send to everyone except user
-	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd);
+	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
 }
 
 void Server::kick(Client *client, std::string cmd)

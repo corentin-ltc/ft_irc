@@ -107,3 +107,10 @@ void Channel::sendToChannel(std::string message)
 	for (size_t i = 0; i < users.size(); i++)
 		Server::sendToSocket(users[i]->getSocket(), message);
 }
+
+void Channel::sendToChannel(std::string message, Client *sender)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i] != sender)
+			Server::sendToSocket(users[i]->getSocket(), message);
+}
