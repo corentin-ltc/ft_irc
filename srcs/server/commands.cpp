@@ -57,8 +57,8 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 	if (cmd_name == "OPER")
 		return (oper(client, cmd));
 	// NOTE : Verify global operator before use
-	if (client->isGlobalOperator() == false)
-		this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	// if (client->isGlobalOperator() == false)
+	// 	this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
 	if (cmd_name == "KICK")
 		return (kick(client, cmd));
 	if (cmd_name == "INVITE")
@@ -73,7 +73,10 @@ void Server::privmsg(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
-	sendToSocket(client->getSocket(), ":" + name + " PRIVMSG " + channel + " " + cmd);
+	//TODO : Message to channel/users only instead of everyone
+	for (int i = 4; i <= clients.size() + 3; i++)
+		if (i != client->getSocket())
+			sendToSocket(i, ":" + name + " PRIVMSG " + channel + " " + cmd);
 }
 
 void Server::kick(Client *client, std::string cmd)
@@ -81,7 +84,11 @@ void Server::kick(Client *client, std::string cmd)
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
 	std::string target = goto_next_word(cmd);
-	sendToSocket(client->getSocket(), ":" + name + " KICK " + channel + target + cmd);
+	//TODO : Permission verification
+	//TODO : Error verification
+	//TODO : Delete users in channel as well
+	for (int i = 4; i <= clients.size() + 3; i++)
+		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
 }
 
 void Server::invite(Client *client, std::string cmd)
@@ -91,7 +98,10 @@ void Server::invite(Client *client, std::string cmd)
 
 void Server::topic(Client *client, std::string cmd)
 {
-	
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	for (int i = 4; i <= clients.size() + 3; i++)
+		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);	
 }
 
 void Server::mode(Client *client, std::string cmd)
