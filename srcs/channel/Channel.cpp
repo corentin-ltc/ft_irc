@@ -25,7 +25,7 @@ void Channel::addUser(Client *client)
 	users.push_back(client);
 
 	// First message
-	Server::sendToSocket(client->getSocket(), RPL_JOIN(client->getClientString(), this->name));
+	this->sendToChannel(RPL_JOIN(client->getClientString(), this->name));
 
 	// Second message
 	if (this->topic.empty() == false)

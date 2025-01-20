@@ -73,12 +73,11 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 
 void Server::privmsg(Client *client, std::string cmd)
 {
-	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	// TODO : Message to channel/users only instead of everyone
-	for (int i = 4; i <= clients.size() + 3; i++)
-		if (i != client->getSocket())
-			sendToSocket(i, ":" + name + " PRIVMSG " + channel + " " + cmd);
+	// TODO: handle multiple arguments
+	// TODO: send to user or channel
+	Channel *channel = findChannel(goto_next_word(cmd));
+	// TODO: send to everyone except user
+	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd);
 }
 
 void Server::kick(Client *client, std::string cmd)
@@ -195,9 +194,7 @@ void Server::join(Client *client, std::string cmd)
 		channels.push_back(new Channel(channel_name));
 		channel = channels[channels.size() - 1];
 	}
-	// maybe BUG: adds to original and not copy
 	client->addChannel(channel);
-	channel->sendToChannel(RPL_JOIN(client->getClientString(), channel_name));
 	channel->addUser(client);
 }
 

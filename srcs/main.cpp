@@ -1,6 +1,10 @@
 #include "Server.hpp"
 #include <cstdlib>
 
+/* TODO:
+ * DISCONNECT CLIENT PROPERLY WHEN QUIT
+ * SEND TO CHANNEL EXCEPT ONE
+ */
 int main(int argc, char **argv)
 {
 	unsigned short port = 6667;
