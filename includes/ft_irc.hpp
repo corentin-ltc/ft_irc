@@ -7,6 +7,7 @@
 #define RPL_WELCOME(client, nick) ":" + client + " 001 " + nick + " :Welcome to ft_irc, " + nick
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
+#define RPL_PART(client, channel) ":" + client + " PART " + channel
 
 // errors
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"

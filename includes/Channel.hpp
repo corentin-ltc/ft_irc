@@ -29,4 +29,5 @@ class Channel
 	Client *findUser(Client *client);
 	Client *findUser(std::string nickname);
 	void disconnectUser(Client *client);
+	void sendToChannel(std::string message);
 };
