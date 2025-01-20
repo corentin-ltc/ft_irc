@@ -18,7 +18,9 @@ void Server::handleClient(int client_socket)
 	Client *client = findClient(client_socket);
 	if (!client)
 		return;
-	this->readClient(client);
+	// TODO: stop if the client was disconnected inside readClient (maybe check retval)
+	if (this->readClient(client) == false)
+		return;
 	if (client->isMessageDone() == false)
 		return;
 	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage(); // DEBUG
@@ -32,7 +34,7 @@ void Server::handleClient(int client_socket)
 	client->clearMessage();
 }
 
-void Server::readClient(Client *client)
+bool Server::readClient(Client *client)
 {
 	char buffer[1024];
 	int bytes_read = read(client->getSocket(), &buffer, sizeof(buffer));
@@ -41,10 +43,11 @@ void Server::readClient(Client *client)
 	if (0 == bytes_read)
 	{
 		disconnectClient(client);
-		return;
+		return (false);
 	}
 	buffer[bytes_read] = 0;
 	client->setMessage(buffer);
+	return (true);
 }
 
 void Server::sendToSocket(int client_socket, std::string message)
@@ -75,6 +78,7 @@ void Server::disconnectClient(Client *client)
 		if (this->clients[i] == client)
 		{
 			delete this->clients[i];
+			this->clients[i] = NULL;
 			this->clients.erase(this->clients.begin() + i);
 			break;
 		}

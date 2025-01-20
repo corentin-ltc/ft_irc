@@ -2,8 +2,9 @@
 #include <cstdlib>
 
 /* TODO:
- * DISCONNECT CLIENT PROPERLY WHEN QUIT
- * SEND TO CHANNEL EXCEPT ONE
+ * answer to CAP LS (might improve responsiveness)
+ * delete channel if empty after a user leaves
+ * channel modes (dont forget to check and print JOIN)
  */
 int main(int argc, char **argv)
 {
