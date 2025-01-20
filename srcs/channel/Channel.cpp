@@ -54,3 +54,56 @@ std::string Channel::getUsersString()
 	}
 	return list;
 }
+
+void Channel::disconnectUser(Client *client)
+{
+	// TODO: enlever de la liste des users
+	for (size_t i = 0; i < users.size(); i++)
+	{
+		if (client == users[i])
+		{
+			users.erase(users.begin() + i);
+			break;
+		}
+	}
+	// TODO: enlever de la liste des operators
+	for (size_t i = 0; i < operators.size(); i++)
+	{
+		if (client == operators[i])
+		{
+			operators.erase(operators.begin() + i);
+			break;
+		}
+	}
+	// TODO: enlever le channel du client
+	std::vector<Channel *> client_channels = client->getChannels();
+	for (size_t i = 0; i < client_channels.size(); i++)
+	{
+		if (this == client_channels[i])
+		{
+			client_channels.erase(client_channels.begin() + i);
+			break;
+		}
+	}
+	// TODO: send le message a tlm
+}
+
+Client *Channel::findUser(Client *client)
+{
+	for (size_t i = 0; i < users.size(); i++)
+	{
+		if (users[i] == client)
+			return (users[i]);
+	}
+	return (NULL);
+}
+
+Client *Channel::findUser(std::string nickname)
+{
+	for (size_t i = 0; i < users.size(); i++)
+	{
+		if (users[i]->getNickname() == nickname)
+			return (users[i]);
+	}
+	return (NULL);
+}
