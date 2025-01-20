@@ -8,7 +8,7 @@ void Server::acceptNewClient()
 	client_socket = accept(server_socket, NULL, NULL);
 	if (-1 == client_socket)
 		throw std::runtime_error("accept");
-	clients.push_back(Client(client_socket));
+	clients.push_back(new Client(client_socket));
 	fds.push_back((struct pollfd){.fd = client_socket, .events = POLLIN, .revents = 0});
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 }

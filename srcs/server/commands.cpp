@@ -89,6 +89,7 @@ void Server::kick(Client *client, std::string cmd)
 	// TODO : Permission verification
 	// TODO : Error verification
 	// TODO : Delete users in channel as well
+	// TODO: use channel->sendToChannel(RPL_KICK);
 	for (int i = 4; i <= clients.size() + 3; i++)
 		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
 }
@@ -182,32 +183,22 @@ void Server::oper(Client *client, std::string cmd)
 
 void Server::join(Client *client, std::string cmd)
 {
+	// TODO: handle multiple arguments
+	std::string channel_name = goto_next_word(cmd);
 
-	std::string channel_name = cmd.substr(0, cmd.find(' '));
-	// TODO: Check that the server name respects the norm
-	if (channel_name.size() == 0)
+	if (channel_name.empty())
+		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("JOIN"))));
+	// TODO: Check that the channel name respects the norm
+	Channel *channel = findChannel(channel_name);
+	if (channel == NULL)
 	{
-		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
-		return;
+		channels.push_back(new Channel(channel_name));
+		channel = channels[channels.size() - 1];
 	}
-	std::vector<Channel *>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
-	{
-		if ((*it)->getName() == channel_name)
-		{
-			// Joining an existing channel
-			(*it)->addUser(client);
-			return;
-		}
-	}
-	if (it == channels.end())
-	{
-		// Creating a new channel
-		Channel *newChan = new Channel(channel_name);
-		newChan->addUser(client);
-		channels.push_back(newChan);
-		client->addChannel(newChan);
-	}
+	// maybe BUG: adds to original and not copy
+	client->addChannel(channel);
+	channel->sendToChannel(RPL_JOIN(client->getClientString(), channel_name));
+	channel->addUser(client);
 }
 
 void Server::part(Client *client, std::string cmd)
@@ -221,8 +212,6 @@ void Server::part(Client *client, std::string cmd)
 	// TODO: Check if the user is inside the channel
 	if (channel->findUser(client) == NULL)
 		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
-				// TODO : Remove the user from the channel list
 	channel->sendToChannel(RPL_PART(client->getClientString(), channel_name));
 	channel->disconnectUser(client);
-	// TODO : Send the Part message to those in the channel only
 }
