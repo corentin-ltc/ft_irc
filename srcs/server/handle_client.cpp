@@ -56,11 +56,13 @@ void Server::sendToSocket(int client_socket, std::string message)
 
 void Server::disconnectClient(Client *client)
 {
+	std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
 	// NOTE: enlever des pollfd
 	for (size_t i = 0; i < this->fds.size(); i++)
 	{
 		if (this->fds[i].fd == client->getSocket())
 		{
+			close(this->fds[i].fd);
 			this->fds.erase(this->fds.begin() + i);
 			break;
 		}
@@ -72,6 +74,7 @@ void Server::disconnectClient(Client *client)
 	{
 		if (this->clients[i] == client)
 		{
+			delete this->clients[i];
 			this->clients.erase(this->clients.begin() + i);
 			break;
 		}
@@ -80,12 +83,11 @@ void Server::disconnectClient(Client *client)
 
 void Server::disconnectAll()
 {
-	std::cout << RED << "Shuting the server down" << WHI << std::endl;
+	std::cout << RED << "Shutting the server down" << WHI << std::endl;
 	for (size_t i = 0; i < fds.size(); i++)
-	{
 		close(fds[i].fd);
-		std::cout << "Client " << i << RED << " disconnected." << WHI << std::endl;
-	}
-	this->fds.clear();
-	this->clients.clear();
+	for (size_t i = 0; i < clients.size(); i++)
+		delete this->clients[i];
+	for (size_t i = 0; i < channels.size(); i++)
+		delete channels[i];
 }
