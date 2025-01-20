@@ -15,7 +15,6 @@ Server::Server(unsigned short port, std::string password) : port(port), password
 Server::~Server()
 {
 	std::cout << "[Server destructor called]" << std::endl;
-	// TODO: close every fds
 	this->disconnectAll();
 }
 
@@ -81,4 +80,3 @@ void Server::run()
 		}
 	}
 }
-
