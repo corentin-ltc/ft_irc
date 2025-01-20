@@ -83,6 +83,8 @@ void Server::part(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
+	//TODO : Remove the user from the channel list
+	//TODO : Send the Part message to those in the channel only
 	for (int i = 4; i <= clients.size() + 3; i++)
 		sendToSocket(i, ":" + name + " PART " + channel + " " + cmd);
 }
