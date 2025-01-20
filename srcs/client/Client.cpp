@@ -36,7 +36,7 @@ int Client::getSocket() const
 	return (client_socket);
 }
 
-std::vector<Channel *> Client::getChannels() const
+std::vector<Channel *> &Client::getChannels()
 {
 	return (this->channels);
 }
@@ -138,4 +138,10 @@ std::string Client::getChannelsString() const
 void Client::addChannel(Channel *channel)
 {
 	this->channels.push_back(channel);
+}
+
+void Client::leaveAllChannels()
+{
+	while (this->channels.empty() == false)
+		this->channels[0]->disconnectUser(this);
 }

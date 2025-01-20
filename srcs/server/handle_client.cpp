@@ -8,7 +8,7 @@ void Server::acceptNewClient()
 	client_socket = accept(server_socket, NULL, NULL);
 	if (-1 == client_socket)
 		throw std::runtime_error("accept");
-	clients.push_back(Client(client_socket));
+	clients.push_back(new Client(client_socket));
 	fds.push_back((struct pollfd){.fd = client_socket, .events = POLLIN, .revents = 0});
 	std::cout << "Client " << client_socket << GRE << " connected." << WHI << std::endl;
 }
@@ -18,7 +18,9 @@ void Server::handleClient(int client_socket)
 	Client *client = findClient(client_socket);
 	if (!client)
 		return;
-	this->readClient(client);
+	// TODO: stop if the client was disconnected inside readClient (maybe check retval)
+	if (this->readClient(client) == false)
+		return;
 	if (client->isMessageDone() == false)
 		return;
 	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage(); // DEBUG
@@ -32,7 +34,7 @@ void Server::handleClient(int client_socket)
 	client->clearMessage();
 }
 
-void Server::readClient(Client *client)
+bool Server::readClient(Client *client)
 {
 	char buffer[1024];
 	int bytes_read = read(client->getSocket(), &buffer, sizeof(buffer));
@@ -40,11 +42,12 @@ void Server::readClient(Client *client)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)
 	{
-		disconnectClient(client->getSocket());
-		return;
+		disconnectClient(client);
+		return (false);
 	}
 	buffer[bytes_read] = 0;
 	client->setMessage(buffer);
+	return (true);
 }
 
 void Server::sendToSocket(int client_socket, std::string message)
@@ -54,16 +57,29 @@ void Server::sendToSocket(int client_socket, std::string message)
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
-void Server::disconnectClient(int client_socket)
+void Server::disconnectClient(Client *client)
 {
-	for (size_t i = 0; i < fds.size(); i++)
+	std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
+	// NOTE: enlever des pollfd
+	for (size_t i = 0; i < this->fds.size(); i++)
 	{
-		if (fds[i].fd == client_socket)
+		if (this->fds[i].fd == client->getSocket())
 		{
-			close(client_socket);
+			close(this->fds[i].fd);
 			this->fds.erase(this->fds.begin() + i);
+			break;
+		}
+	}
+	// NOTE: deco de chaque chan
+	client->leaveAllChannels();
+	// NOTE: enlever des users
+	for (size_t i = 0; i < this->clients.size(); i++)
+	{
+		if (this->clients[i] == client)
+		{
+			delete this->clients[i];
+			this->clients[i] = NULL;
 			this->clients.erase(this->clients.begin() + i);
-			std::cout << "Client " << client_socket << RED << " disconnected." << WHI << std::endl;
 			break;
 		}
 	}
@@ -71,12 +87,11 @@ void Server::disconnectClient(int client_socket)
 
 void Server::disconnectAll()
 {
-	std::cout << RED << "Shuting the server down" << WHI << std::endl;
+	std::cout << RED << "Shutting the server down" << WHI << std::endl;
 	for (size_t i = 0; i < fds.size(); i++)
-	{
 		close(fds[i].fd);
-		std::cout << "Client " << i << RED << " disconnected." << WHI << std::endl;
-	}
-	this->fds.clear();
-	this->clients.clear();
+	for (size_t i = 0; i < clients.size(); i++)
+		delete this->clients[i];
+	for (size_t i = 0; i < channels.size(); i++)
+		delete channels[i];
 }
