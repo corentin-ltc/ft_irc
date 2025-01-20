@@ -12,6 +12,8 @@ FLAGS += -g3 # opti
 
 INCLUDES =	includes
 
+VALGRIND = valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes 
+
 ######################## SOURCES ########################
 
 SERVER = Server.cpp handle_client.cpp commands.cpp utils.cpp
@@ -82,4 +84,4 @@ err : all
 	./${NAME} 2>/dev/null
 
 leak : all
-	valgrind --leak-check=full --show-leak-kinds=all ./${NAME}
+	${VALGRIND} ./${NAME}
