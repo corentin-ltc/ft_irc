@@ -17,7 +17,7 @@ class Server
 	std::string password;
 	int server_socket;
 	struct sockaddr_in server_addr;
-	std::vector<Client> clients;
+	std::vector<Client *> clients;
 	std::vector<struct pollfd> fds;
 	std::vector<Channel *> channels;
 

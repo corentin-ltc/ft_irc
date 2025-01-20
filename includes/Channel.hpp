@@ -10,6 +10,7 @@ class Channel
 	// unsigned int            max_users;
 	std::string name;
 	std::string password;
+	std::string topic;
 	std::vector<Client *> users;
 	std::vector<Client *> operators;
 

@@ -8,6 +8,10 @@
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
 #define RPL_PART(client, channel) ":" + client + " PART " + channel
+#define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
+#define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
+#define RPL_NAMREPLY(client, channel, users) ": 353 " + client + " = " + channel + " :" + users
+#define RPL_ENDOFNAMES(client, channel) ": 366 " + client + " " + channel + " :End of /NAMES list"
 
 // errors
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
