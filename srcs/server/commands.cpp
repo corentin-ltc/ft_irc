@@ -47,9 +47,9 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
-		return ;
+		return;
 	handleOperatorCommand(client, cmd, cmd_name);
-  this->sendToSocket(client.getSocket(), ERR_UNKNOWNCOMMAND(client.getNickname(), cmd_name));
+	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
 
 void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
@@ -73,7 +73,7 @@ void Server::privmsg(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
-	//TODO : Message to channel/users only instead of everyone
+	// TODO : Message to channel/users only instead of everyone
 	for (int i = 4; i <= clients.size() + 3; i++)
 		if (i != client->getSocket())
 			sendToSocket(i, ":" + name + " PRIVMSG " + channel + " " + cmd);
@@ -84,16 +84,15 @@ void Server::kick(Client *client, std::string cmd)
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
 	std::string target = goto_next_word(cmd);
-	//TODO : Permission verification
-	//TODO : Error verification
-	//TODO : Delete users in channel as well
+	// TODO : Permission verification
+	// TODO : Error verification
+	// TODO : Delete users in channel as well
 	for (int i = 4; i <= clients.size() + 3; i++)
 		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
 }
 
 void Server::invite(Client *client, std::string cmd)
 {
-	
 }
 
 void Server::topic(Client *client, std::string cmd)
@@ -101,12 +100,11 @@ void Server::topic(Client *client, std::string cmd)
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
 	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);	
+		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);
 }
 
 void Server::mode(Client *client, std::string cmd)
 {
-	
 }
 
 void Server::ping(int client_socket, std::string cmd)
@@ -150,7 +148,6 @@ void Server::nick(Client *client, std::string cmd)
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
-
 	}
 }
 
@@ -191,7 +188,7 @@ void Server::join(Client *client, std::string cmd)
 		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
 	}
-	std::vector<Channel*>::iterator it;
+	std::vector<Channel *>::iterator it;
 	for (it = channels.begin(); it != channels.end(); it++)
 	{
 		if ((*it)->getName() == channel)
@@ -201,7 +198,7 @@ void Server::join(Client *client, std::string cmd)
 			return;
 		}
 	}
-    if (it == channels.end())
+	if (it == channels.end())
 	{
 		// Creating a new channel
 		Channel *newChan = new Channel(channel);
