@@ -26,4 +26,7 @@ class Channel
   public: // Members functions
 	void addUser(Client *client);
 	std::string getUsersString();
+	Client *findUser(Client *client);
+	Client *findUser(std::string nickname);
+	void disconnectUser(Client *client);
 };

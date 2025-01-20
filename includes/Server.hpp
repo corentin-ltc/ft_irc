@@ -61,6 +61,7 @@ class Server
 	void invite(Client *client, std::string cmd);
 	void topic(Client *client, std::string cmd);
 	void mode(Client *client, std::string cmd);
+	void part(Client *client, std::string cmd);
 };
 
 #endif

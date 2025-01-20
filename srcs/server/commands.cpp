@@ -49,7 +49,7 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
-		return;
+		return (part(client, cmd));
 	handleOperatorCommand(client, cmd, cmd_name);
 	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
@@ -208,4 +208,22 @@ void Server::join(Client *client, std::string cmd)
 		channels.push_back(newChan);
 		client->addChannel(newChan);
 	}
+}
+
+void Server::part(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel_name = goto_next_word(cmd);
+	Channel *channel = findChannel(channel_name);
+	// TODO: Check if the channel exist
+	if (channel == NULL)
+		return; // sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL)
+	// TODO: Check if the user is inside the channel
+	if (channel->findUser(client) == NULL)
+		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL)
+	// TODO : Remove the user from the channel list
+
+	// TODO : Send the Part message to those in the channel only
+	for (int i = 0; i < clients.size(); i++)
+		sendToSocket(clients[i].getSocket(), ":" + name + " PART " + channel_name + " " + cmd);
 }
