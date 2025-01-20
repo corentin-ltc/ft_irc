@@ -209,6 +209,5 @@ void Server::part(Client *client, std::string cmd)
 	// TODO: Check if the user is inside the channel
 	if (channel->findUser(client) == NULL)
 		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
-	channel->sendToChannel(RPL_PART(client->getClientString(), channel_name));
 	channel->disconnectUser(client);
 }

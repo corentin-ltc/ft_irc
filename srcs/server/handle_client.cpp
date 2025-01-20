@@ -40,7 +40,7 @@ void Server::readClient(Client *client)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)
 	{
-		disconnectClient(client->getSocket());
+		disconnectClient(client);
 		return;
 	}
 	buffer[bytes_read] = 0;
@@ -54,19 +54,12 @@ void Server::sendToSocket(int client_socket, std::string message)
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
-void Server::disconnectClient(int client_socket)
+void Server::disconnectClient(Client *client)
 {
-	for (size_t i = 0; i < fds.size(); i++)
-	{
-		if (fds[i].fd == client_socket)
-		{
-			close(client_socket);
-			this->fds.erase(this->fds.begin() + i);
-			this->clients.erase(this->clients.begin() + i);
-			std::cout << "Client " << client_socket << RED << " disconnected." << WHI << std::endl;
-			break;
-		}
-	}
+	// TODO: enlever du pollfd
+	// TODO: deco de chaque chan
+	client->leaveAllChannels();
+	// TODO: enlever des users
 }
 
 void Server::disconnectAll()

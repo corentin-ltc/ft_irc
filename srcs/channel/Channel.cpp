@@ -79,7 +79,7 @@ void Channel::disconnectUser(Client *client)
 			break;
 		}
 	}
-	// TODO: send le message a tlm
+	this->sendToChannel(RPL_PART(client->getClientString(), this->name));
 }
 
 Client *Channel::findUser(Client *client)
