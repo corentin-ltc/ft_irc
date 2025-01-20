@@ -36,7 +36,7 @@ int Client::getSocket() const
 	return (client_socket);
 }
 
-std::vector<Channel *> Client::getChannels() const
+std::vector<Channel *> &Client::getChannels()
 {
 	return (this->channels);
 }

@@ -75,8 +75,8 @@ void Channel::disconnectUser(Client *client)
 			break;
 		}
 	}
-	// TODO: enlever le channel du client
-	std::vector<Channel *> client_channels = client->getChannels();
+	// NOTE: enlever le channel du client
+	std::vector<Channel *> &client_channels = client->getChannels();
 	for (size_t i = 0; i < client_channels.size(); i++)
 	{
 		if (this == client_channels[i])
@@ -106,4 +106,10 @@ Client *Channel::findUser(std::string nickname)
 			return (users[i]);
 	}
 	return (NULL);
+}
+
+void Channel::sendToChannel(std::string message)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		Server::sendToSocket(users[i]->getSocket(), message);
 }
