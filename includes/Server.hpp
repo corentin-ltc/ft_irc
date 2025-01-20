@@ -41,7 +41,7 @@ class Server
 	void handleClient(int client_socket);
 	void disconnectClient(Client *client);
 	void disconnectAll();
-	void readClient(Client *client);
+	bool readClient(Client *client);
 
   public: // public static to be used anywhere
 	static void sendToSocket(int client_socket, std::string message);
