@@ -49,7 +49,7 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "PART")
 		return ;
 	handleOperatorCommand(client, cmd, cmd_name);
-  this->sendToSocket(client.getSocket(), ERR_UNKNOWNCOMMAND(client.getNickname(), cmd_name));
+  this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
 
 void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
