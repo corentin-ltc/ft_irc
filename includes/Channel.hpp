@@ -4,6 +4,8 @@
 #include "Server.hpp"
 #include "ft_irc.hpp"
 
+class Client;
+
 class Channel
 {
   private:
@@ -26,4 +28,5 @@ class Channel
   public: // Members functions
 	void addUser(Client *client);
 	std::string getUsersString();
+  	void disconnectUser(Client *client);
 };

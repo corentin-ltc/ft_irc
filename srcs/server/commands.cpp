@@ -2,6 +2,7 @@
 #include "ft_irc.hpp"
 
 // helper function that returns the current word and erase it from the source string
+// maybe change name gotonextword to gotocurrentword to clarify
 inline static std::string goto_next_word(std::string &str)
 {
 	size_t next_word = str.find_first_of(' ');
@@ -190,22 +191,19 @@ void Server::join(Client *client, std::string cmd)
 		std::cout << client->getSocket() << "Usage: /join <channel_name>" << std::endl;
 		return;
 	}
-	std::vector<Channel *>::iterator it;
-	for (it = channels.begin(); it != channels.end(); it++)
+	for (size_t i = 0; i < channels.size(); i++)
 	{
-		if ((*it)->getName() == channel_name)
+		if (channels[i].getName() == channel)
 		{
 			// Joining an existing channel
-			(*it)->addUser(client);
+			channels[i].addUser(client);
 			return;
 		}
 	}
-	if (it == channels.end())
-	{
-		// Creating a new channel
-		Channel *newChan = new Channel(channel_name);
-		newChan->addUser(client);
-		channels.push_back(newChan);
-		client->addChannel(newChan);
-	}
+	// Creating a new channel
+	Channel newChan(channel);
+	newChan.addUser(client);
+	channels.push_back(newChan);
+	// Adding the channel to the user personal list
+	client->addChannel(&channels[channels.size() - 1]);
 }

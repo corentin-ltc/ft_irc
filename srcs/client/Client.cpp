@@ -1,7 +1,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-Client::Client(int fd) : client_socket(fd), registered(false), globalOperator(false), command_ready(false)
+Client::Client(int fd) : client_socket(fd), registered(false), command_ready(false), globalOperator(false)
 {
 	std::cerr << "[Client fd constructor]\n";
 }
@@ -105,6 +105,11 @@ void Client::setCommandReady()
 bool Client::isCommandReady() const
 {
 	return (this->command_ready);
+}
+
+std::vector<Channel *> &Client::getChannels()
+{
+	return (this->channels);
 }
 
 bool Client::isGlobalOperator() const

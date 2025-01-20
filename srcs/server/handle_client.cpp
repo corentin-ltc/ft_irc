@@ -15,9 +15,11 @@ void Server::acceptNewClient()
 
 void Server::handleClient(int client_socket)
 {
+
 	Client *client = findClient(client_socket);
 	if (!client)
 		return;
+  
 	this->readClient(client);
 	if (client->isMessageDone() == false)
 		return;
@@ -40,7 +42,7 @@ void Server::readClient(Client *client)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)
 	{
-		disconnectClient(client->getSocket());
+		disconnectClient(client);
 		return;
 	}
 	buffer[bytes_read] = 0;
@@ -54,19 +56,22 @@ void Server::sendToSocket(int client_socket, std::string message)
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
-void Server::disconnectClient(int client_socket)
+void Server::disconnectClient(Client *client)
 {
+	std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
+	// NOTE: Remove from pollfds vector
 	for (size_t i = 0; i < fds.size(); i++)
-	{
-		if (fds[i].fd == client_socket)
-		{
-			close(client_socket);
-			this->fds.erase(this->fds.begin() + i);
-			this->clients.erase(this->clients.begin() + i);
-			std::cout << "Client " << client_socket << RED << " disconnected." << WHI << std::endl;
-			break;
-		}
-	}
+		if (client->getSocket() == fds[i].fd)
+			fds.erase(fds.begin() + i);
+	// NOTE: Close the socket
+	close(client->getSocket());
+	// TODO: disconnect from all channels (also send a message)
+	while (client->getChannels().size() > 0)
+		client->getChannels()[0]->disconnectUser(client);
+	// NOTE: Remove from clients vector
+	for (size_t i = 0; i < clients.size(); i++)
+		if (client == &clients[i])
+			clients.erase(clients.begin() + i);
 }
 
 void Server::disconnectAll()
@@ -77,6 +82,4 @@ void Server::disconnectAll()
 		close(fds[i].fd);
 		std::cout << "Client " << i << RED << " disconnected." << WHI << std::endl;
 	}
-	this->fds.clear();
-	this->clients.clear();
 }
