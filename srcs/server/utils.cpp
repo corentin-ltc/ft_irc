@@ -32,3 +32,20 @@ Channel *Server::findChannel(std::string name)
 			channel = this->channels[i];
 	return (channel);
 }
+
+void Server::printInfos() const
+{
+	std::cout << WHI << "----------------" << YEL << " SERVER INFO" << WHI << " ----------------" << std::endl;
+	std::cout << YEL << "Port : " << WHI << port << std::endl;
+	std::cout << YEL << "Password : " << WHI << password << std::endl;
+	std::cout << WHI << "----------------" << YEL << " CLIENTS INFO" << WHI << " ----------------" << std::endl;
+	std::cout << YEL << "Clients connected : " << WHI << clients.size() << std::endl;
+	for (size_t i = 0; i < clients.size(); i++)
+		std::cout << clients[i].getClientString() << ", socket : " << clients[i].getSocket()
+				  << ", registered : " << (clients[i].isRegistered() ? "Yes" : "No")
+				  << ", channels: " << clients[i].getChannelsString() << std::endl;
+	std::cout << WHI << "----------------" << YEL << " CHANNELS INFO" << WHI << " ----------------" << std::endl;
+	std::cout << YEL << "Channels count : " << WHI << channels.size() << std::endl;
+	for (size_t i = 0; i < channels.size(); i++)
+		std::cout << channels[i]->getName() << ", clients connected : " << channels[i]->getUsersString() << std::endl;
+}
