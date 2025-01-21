@@ -27,6 +27,7 @@
 
 #define NAME_ADMIN "admin"
 #define PASS_ADMIN "admin"
+#define USERLEN 18
 
 #include <csignal>
 #include <cstring>
