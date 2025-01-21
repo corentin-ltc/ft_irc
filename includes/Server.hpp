@@ -50,7 +50,7 @@ class Server
   private: // commands
 	void handleCommand(Client *client, std::string cmd);
 	void handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name);
-	void error(int client_socket, std::string reason);
+	void error(Client *client, std::string reason);
 	void ping(int client_socket, std::string cmd);
 	void pass(Client *client, std::string cmd);
 	void nick(Client *client, std::string cmd);
