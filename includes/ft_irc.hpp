@@ -21,7 +21,7 @@
 #define ERR_ALREADYREGISTERED ": 462 :Unauthorized command (already registered)"
 #define ERR_PASSWDMISMATCH ": 464 :Password incorrect"
 #define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
-#define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
+#define ERR_ERRONEUSENICKNAME(client, new_nick) ": 432 " + client + " " + new_nick + " :Erroneus nickname"
 #define ERR_NICKNAMEINUSE(client, nick) ": 433 " + client + " " + nick + " :Nickname is already in use"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
 
@@ -51,6 +51,7 @@ std::string parse_password(std::string string);
 std::vector<std::string> split(std::string source, char delimiter);
 std::string goto_next_word(std::string &str);
 std::vector<std::string> get_args(std::string &str);
+bool checkForbiddenChars(std::string src, std::string leading_chars, std::string charset, std::string ending_chars);
 
 typedef struct pollfd t_pollfd;
 

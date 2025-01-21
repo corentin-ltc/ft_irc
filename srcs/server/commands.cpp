@@ -28,16 +28,9 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
 		return (part(client, cmd));
-	handleOperatorCommand(client, cmd, cmd_name);
-	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
-}
-void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
-{
 	if (cmd_name == "OPER")
 		return (oper(client, cmd));
-	// NOTE : Verify global operator before use
-	// if (client->isGlobalOperator() == false)
-	// 	sendToSocket(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	// NOTE: cmds needing op
 	if (cmd_name == "KICK")
 		return (kick(client, cmd));
 	if (cmd_name == "INVITE")
@@ -46,6 +39,7 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 		return (topic(client, cmd));
 	if (cmd_name == "MODE")
 		return (mode(client, cmd));
+	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
 
 void Server::pass(Client *client, std::string cmd)
@@ -73,14 +67,12 @@ void Server::nick(Client *client, std::string cmd)
 
 	if (cmd.empty())
 		this->sendToSocket(client->getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
-	// TODO: Check format (no leading ":" or "#")
-	else if (cmd.find_first_of(' ') != std::string::npos)
+	else if (checkForbiddenChars(cmd, "#&:", " ", ""))
 		this->sendToSocket(client->getSocket(), ERR_ERRONEUSENICKNAME(old_nick, cmd));
 	else if (findClient(cmd))
 		this->sendToSocket(client->getSocket(), ERR_NICKNAMEINUSE(client->getClientString(), cmd));
 	else
 	{
-
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
