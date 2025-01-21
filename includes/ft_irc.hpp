@@ -25,6 +25,7 @@
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
 #define ERR_NOSUCHCHANNEL(name, channel) ":ft_irc 403 " + name + " " + channel + " :No such channel"
 #define ERR_NOTONCHANNEL(name, channel) ":ft_irc 442 " + name + " " + channel + " :Not on channel"
+#define ERR_USERNOTINCHANNEL(name, channel) ":ft_irc 441 " + name + " " + channel + " :They aren't on that channel"
 
 #define NAME_ADMIN "admin"
 #define PASS_ADMIN "admin"

@@ -28,16 +28,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
 		return (part(client, cmd));
-	handleOperatorCommand(client, cmd, cmd_name);
-	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
-}
-void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
-{
 	if (cmd_name == "OPER")
 		return (oper(client, cmd));
-	// NOTE : Verify global operator before use
-	// if (client->isGlobalOperator() == false)
-	// 	sendToSocket(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
 	if (cmd_name == "KICK")
 		return (kick(client, cmd));
 	if (cmd_name == "INVITE")
@@ -46,6 +38,13 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 		return (topic(client, cmd));
 	if (cmd_name == "MODE")
 		return (mode(client, cmd));
+	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
+}
+void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
+{
+	// NOTE : Verify global operator before use
+	// if (client->isGlobalOperator() == false)
+	// 	sendToSocket(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
 }
 
 void Server::pass(Client *client, std::string cmd)
@@ -79,7 +78,6 @@ void Server::nick(Client *client, std::string cmd)
 	// TODO: Check duplicate (ERR_NICKNAMEINUSE)
 	else
 	{
-
 		client->setNickname(cmd);
 		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
@@ -154,14 +152,19 @@ void Server::oper(Client *client, std::string cmd)
 void Server::kick(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
+	std::string channel_name = goto_next_word(cmd);
 	std::string target = goto_next_word(cmd);
+	Channel *channel = findChannel(channel_name);
+	if (channel == NULL)
+		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(name, channel_name)));
+	if (channel->findUser(target) == NULL)
+		return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(name, channel_name)));
 	// TODO : Permission verification
 	// TODO : Error verification
 	// TODO : Delete users in channel as well
 	// TODO: use channel->sendToChannel(RPL_KICK);
 	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
+		sendToSocket(i, ":" + name + " KICK " + channel_name + " " + target + " " + cmd);
 }
 
 void Server::invite(Client *client, std::string cmd)
