@@ -58,3 +58,15 @@ std::vector<std::string> split(std::string source, char delimiter)
 	}
 	return strings;
 }
+
+bool checkForbiddenChars(std::string src, std::string leading_chars, std::string charset, std::string ending_chars)
+{
+	if (leading_chars.find(src[0]) != std::string::npos)
+		return (true);
+	if (ending_chars.find(src[src.size() - 1]) != std::string::npos)
+		return (true);
+	for (size_t i = 0; i < charset.size(); i++)
+		if (src.find(charset[i]) != std::string::npos)
+			return (true);
+	return (false);
+}
