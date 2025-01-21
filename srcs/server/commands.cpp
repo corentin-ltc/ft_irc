@@ -51,7 +51,7 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "PART")
 		return (part(client, cmd));
 	handleOperatorCommand(client, cmd, cmd_name);
-  this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
+	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
 
 void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
@@ -78,16 +78,6 @@ void Server::privmsg(Client *client, std::string cmd)
 	Channel *channel = findChannel(goto_next_word(cmd));
 	// TODO: send to everyone except user
 	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
-}
-
-void Server::part(Client *client, std::string cmd)
-{
-	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	//TODO : Remove the user from the channel list
-	//TODO : Send the Part message to those in the channel only
-	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " PART " + channel + " " + cmd);
 }
 
 void Server::kick(Client *client, std::string cmd)
