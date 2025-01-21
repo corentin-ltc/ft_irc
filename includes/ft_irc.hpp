@@ -15,13 +15,14 @@
 
 // errors
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
-#define ERROR(reason) "ERROR :" + reason // might change to a variable
+#define ERROR(reason) "ERROR :" + reason
 #define ERR_NOTREGISTERED ": 451 : You have not registered"
 #define ERR_NEEDMOREPARAMS(command) ": 461 " + command + " :Not enough parameters"
 #define ERR_ALREADYREGISTERED ": 462 :Unauthorized command (already registered)"
 #define ERR_PASSWDMISMATCH ": 464 :Password incorrect"
 #define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
+#define ERR_NICKNAMEINUSE(client, nick) ": 433 " + client + " " + nick + " :Nickname is already in use"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
 
 #define NAME_ADMIN "admin"

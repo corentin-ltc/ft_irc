@@ -22,9 +22,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 	// NOTE: cmds needing full auth (nickname..)
 	if (client->isCommandReady() == false)
 		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
-	if (cmd_name == "NICK")
-		if (cmd_name == "JOIN")
-			return (join(client, cmd));
+	if (cmd_name == "JOIN")
+		return (join(client, cmd));
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
@@ -77,7 +76,8 @@ void Server::nick(Client *client, std::string cmd)
 	// TODO: Check format (no leading ":" or "#")
 	else if (cmd.find_first_of(' ') != std::string::npos)
 		this->sendToSocket(client->getSocket(), ERR_ERRONEUSENICKNAME(old_nick, cmd));
-	// TODO: Check duplicate (ERR_NICKNAMEINUSE)
+	else if (findClient(cmd))
+		this->sendToSocket(client->getSocket(), ERR_NICKNAMEINUSE(client->getClientString(), cmd));
 	else
 	{
 
