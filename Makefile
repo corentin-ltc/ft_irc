@@ -70,7 +70,7 @@ ${OBJS_DIR} :
 	mkdir $@channel
 	mkdir $@utils
 
-${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp
+${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp ${HEADERS}
 	${CC} ${FLAGS} ${EXTRAFLAGS} ${CPPFLAGS} ${foreach include, ${INCLUDES},-I ${include}} -c $< -o $@
 
 ######################## TEST ########################
