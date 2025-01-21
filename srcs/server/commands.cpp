@@ -22,9 +22,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 	// NOTE: cmds needing full auth (nickname..)
 	if (client->isCommandReady() == false)
 		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
-	if (cmd_name == "NICK")
-		if (cmd_name == "JOIN")
-			return (join(client, cmd));
+	if (cmd_name == "JOIN")
+		return (join(client, cmd));
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
