@@ -20,9 +20,6 @@ std::string parse_password(std::string string)
 {
 	return string;
 }
-// cmd1
-// cmd2
-// cmd3
 
 std::vector<std::string> split(std::string source, char delimiter)
 {

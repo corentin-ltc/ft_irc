@@ -11,11 +11,11 @@ std::string Channel::getPassword() const
 {
 	return (this->password);
 }
-std::vector<Client *> Channel::getUsers() const
+std::vector<Client *> &Channel::getUsers()
 {
-	return (this->operators);
+	return (this->users);
 }
-std::vector<Client *> Channel::getOperators() const
+std::vector<Client *> &Channel::getOperators()
 {
 	return (this->operators);
 }
@@ -47,39 +47,6 @@ std::string Channel::getUsersString()
 			list.append(" ");
 	}
 	return list;
-}
-
-void Channel::disconnectUser(Client *client)
-{
-	// NOTE: enlever de la liste des users
-	for (size_t i = 0; i < users.size(); i++)
-	{
-		if (client == users[i])
-		{
-			users.erase(users.begin() + i);
-			break;
-		}
-	}
-	// NOTE: enlever de la liste des operators
-	for (size_t i = 0; i < operators.size(); i++)
-	{
-		if (client == operators[i])
-		{
-			operators.erase(operators.begin() + i);
-			break;
-		}
-	}
-	// NOTE: enlever le channel du client
-	std::vector<Channel *> &client_channels = client->getChannels();
-	for (size_t i = 0; i < client_channels.size(); i++)
-	{
-		if (this == client_channels[i])
-		{
-			client_channels.erase(client_channels.begin() + i);
-			break;
-		}
-	}
-	this->sendToChannel(RPL_PART(client->getClientString(), this->name));
 }
 
 Client *Channel::findUser(Client *client)
