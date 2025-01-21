@@ -51,6 +51,7 @@ std::string Channel::getUsersString()
 
 void Channel::disconnectUser(Client *client)
 {
+	this->sendToChannel(RPL_PART(client->getClientString(), this->name));
 	// NOTE: enlever de la liste des users
 	for (size_t i = 0; i < users.size(); i++)
 	{
@@ -79,7 +80,6 @@ void Channel::disconnectUser(Client *client)
 			break;
 		}
 	}
-	this->sendToChannel(RPL_PART(client->getClientString(), this->name));
 }
 
 Client *Channel::findUser(Client *client)
