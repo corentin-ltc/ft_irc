@@ -1,11 +1,6 @@
 #include "Server.hpp"
 #include <cstdlib>
 
-/* TODO:
- * answer to CAP LS (might improve responsiveness)
- * delete channel if empty after a user leaves
- * channel modes (dont forget to check and print JOIN)
- */
 int main(int argc, char **argv)
 {
 	unsigned short port = 6667;
