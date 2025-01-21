@@ -21,15 +21,14 @@ class Channel
 	// Getter and setters:
 	std::string getName() const;
 	std::string getPassword() const;
-	std::vector<Client *> getUsers() const;
-	std::vector<Client *> getOperators() const;
+	std::vector<Client *> &getUsers();
+	std::vector<Client *> &getOperators();
 
   public: // Members functions
 	void addUser(Client *client);
 	std::string getUsersString();
 	Client *findUser(Client *client);
 	Client *findUser(std::string nickname);
-	void disconnectUser(Client *client);
 	void sendToChannel(std::string message);
 	void sendToChannel(std::string message, Client *sender);
 };

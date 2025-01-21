@@ -139,9 +139,3 @@ void Client::addChannel(Channel *channel)
 {
 	this->channels.push_back(channel);
 }
-
-void Client::leaveAllChannels()
-{
-	while (this->channels.empty() == false)
-		this->channels[0]->disconnectUser(this);
-}

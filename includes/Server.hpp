@@ -39,6 +39,7 @@ class Server
   private: // client communication
 	void acceptNewClient();
 	void handleClient(int client_socket);
+	void disconnectClientFromChannel(Client *client, Channel *channel);
 	void disconnectClient(Client *client);
 	void disconnectAll();
 	bool readClient(Client *client);
@@ -62,7 +63,6 @@ class Server
 	void invite(Client *client, std::string cmd);
 	void topic(Client *client, std::string cmd);
 	void mode(Client *client, std::string cmd);
-	void part(Client *client, std::string cmd);
 };
 
 #endif

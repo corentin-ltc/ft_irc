@@ -59,8 +59,7 @@ void Server::sendToSocket(int client_socket, std::string message)
 
 void Server::disconnectClient(Client *client)
 {
-	std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
-	// NOTE: enlever des pollfd
+	// closes and removes the socket
 	for (size_t i = 0; i < this->fds.size(); i++)
 	{
 		if (this->fds[i].fd == client->getSocket())
@@ -70,13 +69,16 @@ void Server::disconnectClient(Client *client)
 			break;
 		}
 	}
-	// NOTE: deco de chaque chan
-	client->leaveAllChannels();
-	// NOTE: enlever des users
+	// removes the client from each channel
+	std::vector<Channel *> client_channels = client->getChannels();
+	while (client_channels.empty() == false)
+		disconnectClientFromChannel(client, channels[0]);
+	// removes the client from the server
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if (this->clients[i] == client)
 		{
+			std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
 			delete this->clients[i];
 			this->clients[i] = NULL;
 			this->clients.erase(this->clients.begin() + i);
@@ -94,4 +96,52 @@ void Server::disconnectAll()
 		delete this->clients[i];
 	for (size_t i = 0; i < channels.size(); i++)
 		delete channels[i];
+}
+
+void Server::disconnectClientFromChannel(Client *client, Channel *channel)
+{
+	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName()));
+	std::vector<Client *> &channel_users = channel->getUsers();
+	// NOTE: enlever de la liste des users
+	for (size_t i = 0; i < channel_users.size(); i++)
+	{
+		if (client == channel_users[i])
+		{
+			channel_users.erase(channel_users.begin() + i);
+			break;
+		}
+	}
+	// NOTE: enlever de la liste des operators
+	std::vector<Client *> &channel_operators = channel->getOperators();
+	for (size_t i = 0; i < channel_operators.size(); i++)
+	{
+		if (client == channel_operators[i])
+		{
+			channel_operators.erase(channel_operators.begin() + i);
+			break;
+		}
+	}
+	// NOTE: enlever le channel du client
+	std::vector<Channel *> &client_channels = client->getChannels();
+	for (size_t i = 0; i < client_channels.size(); i++)
+	{
+		if (channel == client_channels[i])
+		{
+			client_channels.erase(client_channels.begin() + i);
+			break;
+		}
+	}
+	// NOTE: removes the channel if it's empty
+	if (channel->getUsers().empty())
+	{
+		for (size_t i = 0; i < channels.size(); i++)
+		{
+			if (channels[i] == channel)
+			{
+				delete channels[i];
+				channels.erase(channels.begin() + i);
+				break;
+			}
+		}
+	}
 }
