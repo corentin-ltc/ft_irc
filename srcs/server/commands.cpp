@@ -1,28 +1,6 @@
 #include "Server.hpp"
 #include "ft_irc.hpp"
 
-// helper function that returns the current word and erase it from the source string
-inline static std::string goto_next_word(std::string &str)
-{
-	size_t next_word = str.find_first_of(' ');
-	std::string current_word = str.substr(0, next_word);
-	if (next_word == std::string::npos)
-		str.clear();
-	else
-		str.erase(0, next_word + 1);
-	return (current_word);
-}
-
-inline static std::vector<std::string> get_args(std::string &str)
-{
-	std::vector<std::string> args;
-
-	while (str.find_first_of(' ') != std::string::npos)
-		args.push_back(goto_next_word(str));
-	args.push_back(str);
-	return (args);
-}
-
 void Server::handleCommand(Client *client, std::string cmd)
 {
 	std::string cmd_name = goto_next_word(cmd);
@@ -36,16 +14,17 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (ping(client->getSocket(), cmd));
 	// NOTE: cmds needing password
 	if (client->isRegistered() == false)
-		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
+		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "NICK")
 		return (nick(client, cmd));
 	if (cmd_name == "USER")
 		return (user(client, cmd));
 	// NOTE: cmds needing full auth (nickname..)
 	if (client->isCommandReady() == false)
-		return (this->error(client->getSocket(), ERR_NOTREGISTERED));
-	if (cmd_name == "JOIN")
-		return (join(client, cmd));
+		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
+	if (cmd_name == "NICK")
+		if (cmd_name == "JOIN")
+			return (join(client, cmd));
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
@@ -53,14 +32,13 @@ void Server::handleCommand(Client *client, std::string cmd)
 	handleOperatorCommand(client, cmd, cmd_name);
 	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
-
 void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
 {
 	if (cmd_name == "OPER")
 		return (oper(client, cmd));
 	// NOTE : Verify global operator before use
 	// if (client->isGlobalOperator() == false)
-	// 	this->error(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
+	// 	sendToSocket(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
 	if (cmd_name == "KICK")
 		return (kick(client, cmd));
 	if (cmd_name == "INVITE")
@@ -71,58 +49,6 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 		return (mode(client, cmd));
 }
 
-void Server::privmsg(Client *client, std::string cmd)
-{
-	// TODO: handle multiple arguments
-	// TODO: send to user or channel
-	Channel *channel = findChannel(goto_next_word(cmd));
-	// TODO: send to everyone except user
-	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
-}
-
-void Server::kick(Client *client, std::string cmd)
-{
-	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	std::string target = goto_next_word(cmd);
-	// TODO : Permission verification
-	// TODO : Error verification
-	// TODO : Delete users in channel as well
-	// TODO: use channel->sendToChannel(RPL_KICK);
-	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
-}
-
-void Server::invite(Client *client, std::string cmd)
-{
-}
-
-void Server::topic(Client *client, std::string cmd)
-{
-	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);
-}
-
-void Server::mode(Client *client, std::string cmd)
-{
-}
-
-void Server::ping(int client_socket, std::string cmd)
-{
-	if (cmd.empty())
-		this->sendToSocket(client_socket, ERR_NEEDMOREPARAMS(std::string("PONG")));
-	else
-		this->sendToSocket(client_socket, PONG(cmd));
-}
-
-void Server::error(int client_socket, std::string reason)
-{
-	this->sendToSocket(client_socket, reason);
-	// this->disconnectClient(client_socket);
-}
-
 void Server::pass(Client *client, std::string cmd)
 {
 	if (client->isRegistered())
@@ -131,6 +57,14 @@ void Server::pass(Client *client, std::string cmd)
 		this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH);
 	else
 		client->_register();
+}
+
+void Server::ping(int client_socket, std::string cmd)
+{
+	if (cmd.empty())
+		this->sendToSocket(client_socket, ERR_NEEDMOREPARAMS(std::string("PONG")));
+	else
+		this->sendToSocket(client_socket, PONG(cmd));
 }
 
 void Server::nick(Client *client, std::string cmd)
@@ -169,17 +103,6 @@ void Server::user(Client *client, std::string cmd)
 	}
 }
 
-void Server::oper(Client *client, std::string cmd)
-{
-	std::string name = goto_next_word(cmd);
-	std::string pass = cmd;
-	if (name != NAME_ADMIN || pass != PASS_ADMIN)
-		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
-	else
-		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
-	client->setGlobalOperator();
-}
-
 void Server::join(Client *client, std::string cmd)
 {
 	// TODO: handle multiple arguments
@@ -197,7 +120,14 @@ void Server::join(Client *client, std::string cmd)
 	client->addChannel(channel);
 	channel->addUser(client);
 }
-
+void Server::privmsg(Client *client, std::string cmd)
+{
+	// TODO: handle multiple arguments
+	// TODO: send to user or channel
+	Channel *channel = findChannel(goto_next_word(cmd));
+	// TODO: send to everyone except user
+	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
+}
 void Server::part(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
@@ -210,4 +140,50 @@ void Server::part(Client *client, std::string cmd)
 	if (channel->findUser(client) == NULL)
 		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
 	disconnectClientFromChannel(client, channel);
+}
+
+void Server::oper(Client *client, std::string cmd)
+{
+	std::string name = goto_next_word(cmd);
+	std::string pass = cmd;
+	if (name != NAME_ADMIN || pass != PASS_ADMIN)
+		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
+	else
+		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
+	client->setGlobalOperator();
+}
+void Server::kick(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	std::string target = goto_next_word(cmd);
+	// TODO : Permission verification
+	// TODO : Error verification
+	// TODO : Delete users in channel as well
+	// TODO: use channel->sendToChannel(RPL_KICK);
+	for (int i = 4; i <= clients.size() + 3; i++)
+		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
+}
+
+void Server::invite(Client *client, std::string cmd)
+{
+}
+
+void Server::topic(Client *client, std::string cmd)
+{
+	std::string name = client->getNickname();
+	std::string channel = goto_next_word(cmd);
+	for (int i = 4; i <= clients.size() + 3; i++)
+		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);
+}
+
+void Server::mode(Client *client, std::string cmd)
+{
+}
+
+// on critical error, send ERROR and disconnect
+void Server::error(Client *client, std::string reason)
+{
+	this->sendToSocket(client->getSocket(), reason);
+	this->disconnectClient(client);
 }

@@ -48,6 +48,8 @@ void stopServer(int signal);
 unsigned short parse_port(std::string string);
 std::string parse_password(std::string string);
 std::vector<std::string> split(std::string source, char delimiter);
+std::string goto_next_word(std::string &str);
+std::vector<std::string> get_args(std::string &str);
 
 typedef struct pollfd t_pollfd;
 
