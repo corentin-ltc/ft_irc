@@ -89,9 +89,10 @@ void Server::user(Client *client, std::string cmd)
 		this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("USER")));
 	else
 	{
+		if (args[0].size() > USERLEN)
+			args[0].erase(args[0].begin() + USERLEN, args[0].end());
 		client->setUsername(args[0]);
 		client->setCommandReady();
-		// TODO: set realname to a concatenation of args[3] to args[size]
 	}
 }
 
