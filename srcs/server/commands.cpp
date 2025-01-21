@@ -209,5 +209,5 @@ void Server::part(Client *client, std::string cmd)
 	// TODO: Check if the user is inside the channel
 	if (channel->findUser(client) == NULL)
 		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
-	channel->disconnectUser(client);
+	disconnectClientFromChannel(client, channel);
 }
