@@ -29,6 +29,7 @@ class Channel
 	std::string getUsersString();
 	Client *findUser(Client *client);
 	Client *findUser(std::string nickname);
+	bool isOperator(const Client *client) const;
 	void sendToChannel(std::string message);
 	void sendToChannel(std::string message, Client *sender);
 };

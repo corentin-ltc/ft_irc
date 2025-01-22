@@ -104,6 +104,7 @@ void Server::user(Client *client, std::string cmd)
  * Check if mode (+i) invite and if client was invited
  * Check if mode (+l) client limit and if reached
  * can handle "JOIN 0" if you want (makes you leave all channels)
+ * add as channel operator on creation
  */
 void Server::join(Client *client, std::string cmd)
 {
@@ -184,23 +185,26 @@ void Server::oper(Client *client, std::string cmd)
 	client->setGlobalOperator();
 }
 
-/* TODO:
- * Check param numbers (2 mini) (ERR_NEEDMOREPARAMS)
- * Check if the channel exists (ERR_NOSUCHCHANNEL)
- * Check if client is in the channel (ERR_NOTONCHANNEL)
- * Check if client is a channel or global operator (ERR_CHANOPRIVISNEEDED)
- * Check if target is in the channel (ERR_USERNOTINCHANNEL)
- * Check if a reason was given (everything after the 2nd argument), if not use a default reason
- * Use sendToChannel(RPL_KICK) to perform the client-side kick
- * Use disconnectClientFromChannel() to perform the server-side kick
- */
 void Server::kick(Client *client, std::string cmd)
 {
-	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	std::string target = goto_next_word(cmd);
-	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
+	std::string channel_string = goto_next_word(cmd);
+	std::string target_string = goto_next_word(cmd);
+	std::string reason = cmd.empty() ? "No reason given" : cmd;
+
+	if (channel_string.empty() || target_string.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("KICK"))));
+	Channel *channel = findChannel(channel_string);
+	if (channel == NULL)
+		return (this->sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_string)));
+	if (channel->findUser(client) == NULL)
+		return (this->sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_string)));
+	if (client->isGlobalOperator() == false && channel->isOperator(client) == false)
+		return (this->sendToSocket(client->getSocket(), ERR_CHANOPRIVISNEEDED(client->getClientString(), channel_string)));
+	Client *target = channel->findUser(target_string);
+	if (target == NULL)
+		return (this->sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getClientString(), target_string, channel_string)));
+	channel->sendToChannel(RPL_KICK(client->getClientString(), channel_string, target_string, reason));
+	disconnectClientFromChannel(channel->findUser(target_string), channel);
 }
 
 /* TODO:
