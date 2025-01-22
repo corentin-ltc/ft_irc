@@ -40,12 +40,6 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (mode(client, cmd));
 	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
 }
-void Server::handleOperatorCommand(Client *client, std::string cmd, std::string cmd_name)
-{
-	// NOTE : Verify global operator before use
-	// if (client->isGlobalOperator() == false)
-	// 	sendToSocket(client->getSocket(), ERR_NOPRIVILEGES(client->getUsername()));
-}
 
 void Server::pass(Client *client, std::string cmd)
 {
