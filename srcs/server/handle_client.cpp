@@ -72,7 +72,10 @@ void Server::disconnectClient(Client *client)
 	// removes the client from each channel
 	std::vector<Channel *> client_channels = client->getChannels();
 	while (client_channels.empty() == false)
+	{
+		channels[0]->sendToChannel(RPL_PART(client->getClientString(), channels[0]->getName()));
 		disconnectClientFromChannel(client, channels[0]);
+	}
 	// removes the client from the server
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
@@ -100,7 +103,6 @@ void Server::disconnectAll()
 
 void Server::disconnectClientFromChannel(Client *client, Channel *channel)
 {
-	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName()));
 	std::vector<Client *> &channel_users = channel->getUsers();
 	// NOTE: enlever de la liste des users
 	for (size_t i = 0; i < channel_users.size(); i++)
