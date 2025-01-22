@@ -7,6 +7,31 @@ std::string Channel::getName() const
 	return (this->name);
 }
 
+bool Channel::isInvitationMode() const
+{
+	return (invitation_mode);
+}
+
+bool Channel::isPasswordRequired() const
+{
+	return (password_required);
+}
+
+void Channel::setPasswordRequired(bool state)
+{
+	password_required = state;
+}
+
+void Channel::setPassword(std::string new_password)
+{
+	password = new_password;
+}
+
+void Channel::setInvitationMode(bool state)
+{
+	invitation_mode = state;
+}
+
 std::string Channel::getPassword() const
 {
 	return (this->password);
@@ -55,6 +80,16 @@ Client *Channel::findUser(Client *client)
 	{
 		if (users[i] == client)
 			return (users[i]);
+	}
+	return (NULL);
+}
+
+Client *Channel::findUserInInvitationList(Client *client)
+{
+	for (size_t i = 0; i < users_invited.size(); i++)
+	{
+		if (users_invited[i] == client)
+			return (users_invited[i]);
 	}
 	return (NULL);
 }

@@ -40,6 +40,7 @@
 #include <sys/poll.h>
 #include <sys/poll.h> // struct pollfd
 #include <vector>
+#include <map>
 
 #define RED "\e[1;31m" //-> for red color
 #define WHI "\e[0;37m" //-> for white color

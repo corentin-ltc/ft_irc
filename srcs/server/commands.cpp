@@ -24,6 +24,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
+	if (cmd_name == "MODE")
+		return (mode(client, cmd));
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
@@ -44,8 +46,6 @@ void Server::handleOperatorCommand(Client *client, std::string cmd, std::string 
 		return (invite(client, cmd));
 	if (cmd_name == "TOPIC")
 		return (topic(client, cmd));
-	if (cmd_name == "MODE")
-		return (mode(client, cmd));
 }
 
 void Server::pass(Client *client, std::string cmd)
@@ -115,9 +115,24 @@ void Server::join(Client *client, std::string cmd)
 		channels.push_back(new Channel(channel_name));
 		channel = channels[channels.size() - 1];
 	}
-	client->addChannel(channel);
-	channel->addUser(client);
+	if (channel->isInvitationMode())
+	{
+		if (channel->findUserInInvitationList(client))
+		{
+			client->addChannel(channel);
+			channel->addUser(client);
+		}
+		else
+		{
+			sendToSocket(client->getSocket(), "Sorry you were not invited to this channel.");
+			return ;
+		}
+	}
+	else
+		client->addChannel(channel);
+		channel->addUser(client);
 }
+
 void Server::privmsg(Client *client, std::string cmd)
 {
 	// TODO: handle multiple arguments
@@ -177,6 +192,39 @@ void Server::topic(Client *client, std::string cmd)
 
 void Server::mode(Client *client, std::string cmd)
 {
+	int flag_index = cmd.find_first_of(" ");
+	std::string flag = cmd.substr(flag_index + 1, cmd.find_last_of(" "));
+	if (cmd[0] == '#') // set mode for a channel
+	{
+		Channel *channel = findChannel(cmd.substr(0, flag_index));
+		if (!channel)
+			return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), cmd.substr(0, flag_index))));
+		if (flag == "+i")
+			channel->setInvitationMode(true);
+		else if (flag == "-i")
+			channel->setInvitationMode(false);
+		else if (flag == "-k")
+			channel->setPasswordRequired(false);
+		else if (flag == "+k")
+		{
+			std::string new_password = cmd.substr(flag_index + 2, cmd.size());
+			if (new_password.size() == 0)
+				return;// not enough arguments
+			channel->setPasswordRequired(true);
+			channel->setPassword(new_password);
+		}
+		else if (fla)
+			
+	}
+	else // set mode for a user
+	{
+		// find user
+	}
+
+
+
+
+	std::cout << "Flag = " << flag << std::endl;
 }
 
 // on critical error, send ERROR and disconnect
