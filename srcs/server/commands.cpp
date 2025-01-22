@@ -96,14 +96,20 @@ void Server::user(Client *client, std::string cmd)
 	}
 }
 
+/* TODO:
+ * Handle multiple arguments (JOIN chan1,chan2,chan3)
+ * Transform the name to either lower or uppercase, "{}|^" to upper are "[]\~"
+ * Check if name is valid ((start with '&', '#', '+' or '!') and no ' ', '^G', ',' inside and 50chars max)
+ * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
+ * Check if mode (+i) invite and if client was invited
+ * Check if mode (+l) client limit and if reached
+ */
 void Server::join(Client *client, std::string cmd)
 {
-	// TODO: handle multiple arguments
 	std::string channel_name = goto_next_word(cmd);
 
 	if (channel_name.empty())
 		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("JOIN"))));
-	// TODO: Check that the channel name respects the norm
 	Channel *channel = findChannel(channel_name);
 	if (channel == NULL)
 	{
@@ -126,8 +132,6 @@ void Server::join(Client *client, std::string cmd)
  */
 void Server::privmsg(Client *client, std::string cmd)
 {
-	// TODO: handle multiple arguments
-	// TODO: send to user or channel
 	Channel *channel = findChannel(goto_next_word(cmd));
 	// TODO: send to everyone except user
 	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
