@@ -36,6 +36,11 @@ int Client::getSocket() const
 	return (client_socket);
 }
 
+std::vector<Channel *> &Client::getChannels()
+{
+	return (this->channels);
+}
+
 void Client::setNickname(std::string nick)
 {
 	this->nickname = nick;
@@ -110,4 +115,27 @@ bool Client::isGlobalOperator() const
 void Client::setGlobalOperator()
 {
 	this->globalOperator = true;
+}
+
+std::string Client::getClientString() const
+{
+	return (nickname + "!" + username + "@localhost");
+}
+
+std::string Client::getChannelsString() const
+{
+	std::string list = "";
+
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		list.append(channels[i]->getName());
+		if (i + 1 < channels.size())
+			list.append(" ");
+	}
+	return (list);
+}
+
+void Client::addChannel(Channel *channel)
+{
+	this->channels.push_back(channel);
 }

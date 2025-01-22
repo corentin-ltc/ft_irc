@@ -2,39 +2,82 @@
 #include "Server.hpp"
 #include "ft_irc.hpp"
 
-
-void    Channel::addUser(Client *client)
+std::string Channel::getName() const
 {
-    users.push_back(client);
-    if (client->isGlobalOperator())
-        operators.push_back(client);
-
-    std::string beginning_of_message = ":" + client->getNickname() + "!" + client->getUsername() + "@localhost ";
-    
-    // First message
-    std::string message = beginning_of_message + "353 " + client->getNickname() + " = " + name + " :" + getUsersInChannel();
-    Server::sendToSocket(client->getSocket(), message);
-
-    //Second message
-    message = beginning_of_message + "366 " + client->getNickname() + " " + name + " :End of /NAMES list";
-    Server::sendToSocket(client->getSocket(), message);
-
-    //Third message
-    message = beginning_of_message + "JOIN :" + name;
-    Server::sendToSocket(client->getSocket(), message);
-
+	return (this->name);
 }
 
-
-std::string    Channel::getUsersInChannel()
+std::string Channel::getPassword() const
 {
-    std::string list= "";
+	return (this->password);
+}
+std::vector<Client *> &Channel::getUsers()
+{
+	return (this->users);
+}
+std::vector<Client *> &Channel::getOperators()
+{
+	return (this->operators);
+}
 
-    for (std::vector<Client*>::iterator it = users.begin(); it != users.end(); it++)
-    {
-        list.append((*it)->getNickname());
-        if (it + 1 != users.end())
-            list.append(" ");
-    }
-    return list;
+void Channel::addUser(Client *client)
+{
+	users.push_back(client);
+
+	// First message
+	this->sendToChannel(RPL_JOIN(client->getClientString(), this->name));
+
+	// Second message
+	if (this->topic.empty() == false)
+		Server::sendToSocket(client->getSocket(), RPL_TOPIC(client->getClientString(), this->name, this->topic));
+
+	// Third message
+	Server::sendToSocket(client->getSocket(), RPL_NAMREPLY(client->getClientString(), this->name, getUsersString()));
+	Server::sendToSocket(client->getSocket(), RPL_ENDOFNAMES(client->getClientString(), this->name));
+}
+
+std::string Channel::getUsersString()
+{
+	std::string list = "";
+
+	for (std::vector<Client *>::iterator it = users.begin(); it != users.end(); it++)
+	{
+		list.append((*it)->getNickname());
+		if (it + 1 != users.end())
+			list.append(" ");
+	}
+	return list;
+}
+
+Client *Channel::findUser(Client *client)
+{
+	for (size_t i = 0; i < users.size(); i++)
+	{
+		if (users[i] == client)
+			return (users[i]);
+	}
+	return (NULL);
+}
+
+Client *Channel::findUser(std::string nickname)
+{
+	for (size_t i = 0; i < users.size(); i++)
+	{
+		if (users[i]->getNickname() == nickname)
+			return (users[i]);
+	}
+	return (NULL);
+}
+
+void Channel::sendToChannel(std::string message)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		Server::sendToSocket(users[i]->getSocket(), message);
+}
+
+void Channel::sendToChannel(std::string message, Client *sender)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i] != sender)
+			Server::sendToSocket(users[i]->getSocket(), message);
 }

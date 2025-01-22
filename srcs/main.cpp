@@ -13,8 +13,6 @@ int main(int argc, char **argv)
 		if (argc > 2)
 			password = parse_password(argv[2]);
 
-		std::cout << "Port: " << port << "\nPassword: " << password << std::endl;
-
 		Server server(port, password);
 		server.initServer();
 		signal(SIGINT, stopServer);

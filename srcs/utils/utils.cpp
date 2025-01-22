@@ -20,9 +20,28 @@ std::string parse_password(std::string string)
 {
 	return string;
 }
-// cmd1
-// cmd2
-// cmd3
+
+// helper function that returns the current word and erase it from the source string
+std::string goto_next_word(std::string &str)
+{
+	size_t next_word = str.find_first_of(' ');
+	std::string current_word = str.substr(0, next_word);
+	if (next_word == std::string::npos)
+		str.clear();
+	else
+		str.erase(0, next_word + 1);
+	return (current_word);
+}
+
+std::vector<std::string> get_args(std::string &str)
+{
+	std::vector<std::string> args;
+
+	while (str.find_first_of(' ') != std::string::npos)
+		args.push_back(goto_next_word(str));
+	args.push_back(str);
+	return (args);
+}
 
 std::vector<std::string> split(std::string source, char delimiter)
 {

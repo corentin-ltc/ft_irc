@@ -7,6 +7,11 @@
 #define RPL_WELCOME(client, nick) ":" + client + " 001 " + nick + " :Welcome to ft_irc, " + nick
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
+#define RPL_PART(client, channel) ":" + client + " PART " + channel
+#define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
+#define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
+#define RPL_NAMREPLY(client, channel, users) ": 353 " + client + " = " + channel + " :" + users
+#define RPL_ENDOFNAMES(client, channel) ": 366 " + client + " " + channel + " :End of /NAMES list"
 
 // errors
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
@@ -18,6 +23,8 @@
 #define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 433 " + client + " " + new_nick + ":Erroneus nickname"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
+#define ERR_NOSUCHCHANNEL(name, channel) ":ft_irc 403 " + name + " " + channel + " :No such channel"
+#define ERR_NOTONCHANNEL(name, channel) ":ft_irc 442 " + name + " " + channel + " :Not on channel"
 
 #define NAME_ADMIN "admin"
 #define PASS_ADMIN "admin"
@@ -43,5 +50,9 @@ void stopServer(int signal);
 unsigned short parse_port(std::string string);
 std::string parse_password(std::string string);
 std::vector<std::string> split(std::string source, char delimiter);
+std::string goto_next_word(std::string &str);
+std::vector<std::string> get_args(std::string &str);
 
 typedef struct pollfd t_pollfd;
+
+#

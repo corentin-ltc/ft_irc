@@ -7,13 +7,16 @@ CC = c++
 FLAGS = #-Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
 FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
-FLAGS += -g # opti
+FLAGS += -g3 # opti
+# FLAGS += -fsanitize=address,leak,undefined #sanitize
 
 INCLUDES =	includes
 
+VALGRIND = valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes 
+
 ######################## SOURCES ########################
 
-SERVER = Server.cpp handle_client.cpp commands.cpp
+SERVER = Server.cpp handle_client.cpp commands.cpp utils.cpp
 
 CLIENT =	Client.cpp
 
@@ -81,4 +84,4 @@ err : all
 	./${NAME} 2>/dev/null
 
 leak : all
-	valgrind --leak-check=full --show-leak-kinds=all ./${NAME}
+	${VALGRIND} ./${NAME}

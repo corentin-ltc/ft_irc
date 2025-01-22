@@ -15,16 +15,15 @@ void Server::acceptNewClient()
 
 void Server::handleClient(int client_socket)
 {
-	// maybe put this inside a findClient(int fd) function
-	Client *client ;
-	for (size_t i = 0; i < this->clients.size(); i++)
-		if (this->clients[i]->getSocket() == client_socket)
-			client = this->clients[i];
-
-	this->readClient(client);
+	Client *client = findClient(client_socket);
+	if (!client)
+		return;
+	// TODO: stop if the client was disconnected inside readClient (maybe check retval)
+	if (this->readClient(client) == false)
+		return;
 	if (client->isMessageDone() == false)
 		return;
-	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage();//DEBUG
+	std::cout << RED << "RECEIVED (" << client->getSocket() << "): " << WHI << client->getMessage(); // DEBUG
 	std::vector<std::string> cmds = split(client->getMessage(), '\n');
 	for (size_t i = 0; i < cmds.size(); i++)
 	{
@@ -35,7 +34,7 @@ void Server::handleClient(int client_socket)
 	client->clearMessage();
 }
 
-void Server::readClient(Client *client)
+bool Server::readClient(Client *client)
 {
 	char buffer[1024];
 	int bytes_read = read(client->getSocket(), &buffer, sizeof(buffer));
@@ -43,30 +42,46 @@ void Server::readClient(Client *client)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)
 	{
-		disconnectClient(client->getSocket());
-		return;
+		disconnectClient(client);
+		return (false);
 	}
 	buffer[bytes_read] = 0;
 	client->setMessage(buffer);
+	return (true);
 }
 
 void Server::sendToSocket(int client_socket, std::string message)
 {
 	message.append(ENDL);
-	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message;//DEBUG
+	std::cout << GRE << "SENT (" << client_socket << "): " << WHI << message; // DEBUG
 	send(client_socket, message.c_str(), message.length(), SEND_FLAGS);
 }
 
-void Server::disconnectClient(int client_socket)
+void Server::disconnectClient(Client *client)
 {
-	for (size_t i = 0; i < fds.size(); i++)
+	// closes and removes the socket
+	for (size_t i = 0; i < this->fds.size(); i++)
 	{
-		if (fds[i].fd == client_socket)
+		if (this->fds[i].fd == client->getSocket())
 		{
-			close(client_socket);
+			close(this->fds[i].fd);
 			this->fds.erase(this->fds.begin() + i);
+			break;
+		}
+	}
+	// removes the client from each channel
+	std::vector<Channel *> client_channels = client->getChannels();
+	while (client_channels.empty() == false)
+		disconnectClientFromChannel(client, channels[0]);
+	// removes the client from the server
+	for (size_t i = 0; i < this->clients.size(); i++)
+	{
+		if (this->clients[i] == client)
+		{
+			std::cout << "Client " << client->getSocket() << RED << " disconnected." << WHI << std::endl;
+			delete this->clients[i];
+			this->clients[i] = NULL;
 			this->clients.erase(this->clients.begin() + i);
-			std::cout << "Client " << client_socket << RED << " disconnected." << WHI << std::endl;
 			break;
 		}
 	}
@@ -74,12 +89,59 @@ void Server::disconnectClient(int client_socket)
 
 void Server::disconnectAll()
 {
-	std::cout << RED << "Shuting the server down" << WHI << std::endl;
+	std::cout << RED << "Shutting the server down" << WHI << std::endl;
 	for (size_t i = 0; i < fds.size(); i++)
-	{
 		close(fds[i].fd);
-		std::cout << "Client " << i << RED << " disconnected." << WHI << std::endl;
+	for (size_t i = 0; i < clients.size(); i++)
+		delete this->clients[i];
+	for (size_t i = 0; i < channels.size(); i++)
+		delete channels[i];
+}
+
+void Server::disconnectClientFromChannel(Client *client, Channel *channel)
+{
+	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName()));
+	std::vector<Client *> &channel_users = channel->getUsers();
+	// NOTE: enlever de la liste des users
+	for (size_t i = 0; i < channel_users.size(); i++)
+	{
+		if (client == channel_users[i])
+		{
+			channel_users.erase(channel_users.begin() + i);
+			break;
+		}
 	}
-	this->fds.clear();
-	this->clients.clear();
+	// NOTE: enlever de la liste des operators
+	std::vector<Client *> &channel_operators = channel->getOperators();
+	for (size_t i = 0; i < channel_operators.size(); i++)
+	{
+		if (client == channel_operators[i])
+		{
+			channel_operators.erase(channel_operators.begin() + i);
+			break;
+		}
+	}
+	// NOTE: enlever le channel du client
+	std::vector<Channel *> &client_channels = client->getChannels();
+	for (size_t i = 0; i < client_channels.size(); i++)
+	{
+		if (channel == client_channels[i])
+		{
+			client_channels.erase(client_channels.begin() + i);
+			break;
+		}
+	}
+	// NOTE: removes the channel if it's empty
+	if (channel->getUsers().empty())
+	{
+		for (size_t i = 0; i < channels.size(); i++)
+		{
+			if (channels[i] == channel)
+			{
+				delete channels[i];
+				channels.erase(channels.begin() + i);
+				break;
+			}
+		}
+	}
 }
