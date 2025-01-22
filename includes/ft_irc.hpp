@@ -9,11 +9,16 @@
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
 #define RPL_PART(client, channel) ":" + client + " PART " + channel
 #define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
+#define RPL_PRIVMSG(client, target, message) ":" + client + " PRIVMSG " + target + " :" + message
 #define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
 #define RPL_NAMREPLY(client, channel, users) ": 353 " + client + " = " + channel + " :" + users
 #define RPL_ENDOFNAMES(client, channel) ": 366 " + client + " " + channel + " :End of /NAMES list"
 
 // errors
+#define ERR_NOSUCHNICK(client, nick) ": 401 " + client + " " + nick + " :No such nick/channel"
+#define ERR_CANNOTSENDTOCHAN(client, channel) ": 404 " + client + " " + channel + " :Cannot send to channel"
+#define ERR_NORECIPIENT(client, command) ": 411 " + client + " :No recipient given (" + command + ")"
+#define ERR_NOTEXTTOSEND(client) ": 412 " + client + " :No text to send"
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
 #define ERROR(reason) "ERROR :" + reason
 #define ERR_NOTREGISTERED ": 451 : You have not registered"
@@ -24,8 +29,8 @@
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 432 " + client + " " + new_nick + " :Erroneus nickname"
 #define ERR_NICKNAMEINUSE(client, nick) ": 433 " + client + " " + nick + " :Nickname is already in use"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
-#define ERR_NOSUCHCHANNEL(name, channel) ":ft_irc 403 " + name + " " + channel + " :No such channel"
-#define ERR_NOTONCHANNEL(name, channel) ":ft_irc 442 " + name + " " + channel + " :Not on channel"
+#define ERR_NOSUCHCHANNEL(client, channel) ":ft_irc 403 " + client + " " + channel + " :No such channel"
+#define ERR_NOTONCHANNEL(client, channel) ":ft_irc 442 " + client + " " + channel + " :Not on channel"
 
 #define NAME_ADMIN "admin"
 #define PASS_ADMIN "admin"
