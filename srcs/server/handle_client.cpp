@@ -73,8 +73,9 @@ void Server::disconnectClient(Client *client)
 	std::vector<Channel *> client_channels = client->getChannels();
 	while (client_channels.empty() == false)
 	{
-		channels[0]->sendToChannel(RPL_PART(client->getClientString(), channels[0]->getName(), "leaving the server"));
-		disconnectClientFromChannel(client, channels[0]);
+		client_channels[0]->sendToChannel(RPL_PART(client->getClientString(), client_channels[0]->getName(), "leaving the server"));
+		disconnectClientFromChannel(client, client_channels[0]);
+		client_channels.erase(client_channels.begin());
 	}
 	// removes the client from the server
 	for (size_t i = 0; i < this->clients.size(); i++)
