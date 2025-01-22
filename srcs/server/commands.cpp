@@ -103,6 +103,7 @@ void Server::user(Client *client, std::string cmd)
  * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
  * Check if mode (+i) invite and if client was invited
  * Check if mode (+l) client limit and if reached
+ * can handle "JOIN 0" if you want (makes you leave all channels)
  */
 void Server::join(Client *client, std::string cmd)
 {
@@ -120,21 +121,38 @@ void Server::join(Client *client, std::string cmd)
 	channel->addUser(client);
 }
 
-/* TODO:
- - (PRIVMSG target <text to send>)
- - Check that there is at least one target (ERR_NORECIPIENT)
- - Check that there is a text to send (ERR_NOTEXTTOSEND)
- - Handle multiple targets (PRIVMSG target1,target2,#target3 <text>)
- - Check if the target is a client or a channel
- - If it's a client, check if it exists (ERR_NOSUCHNICK)
- - If it's a channel, check that the client is in it (ERR_CANNOTSENDTOCHAN)k
- - Send to every target with either sendToSocket or sendToChannel, no server-side needed
- */
 void Server::privmsg(Client *client, std::string cmd)
 {
-	Channel *channel = findChannel(goto_next_word(cmd));
-	// TODO: send to everyone except user
-	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
+	std::string targets_string = goto_next_word(cmd);
+	if (targets_string.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NORECIPIENT(client->getClientString(), "PRIVMSG")));
+	std::string text = cmd;
+	if (text.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NOTEXTTOSEND(client->getClientString())));
+	if (text[0] == ':')
+		text.erase(text.begin());
+	std::vector<std::string> targets = split(targets_string, ',');
+	for (size_t i = 0; i < targets.size(); i++)
+	{
+		if (std::string("&#+!").find(targets[i][0]) != std::string::npos) // target is a channel
+		{
+			Channel *channel_target = findChannel(targets[i]);
+			if (channel_target == NULL) // chan does not exist
+				sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), targets[i]));
+			else if (channel_target->findUser(client) == NULL) // client not in chan
+				sendToSocket(client->getSocket(), ERR_CANNOTSENDTOCHAN(client->getClientString(), targets[i]));
+			else // send reply
+				channel_target->sendToChannel(RPL_PRIVMSG(client->getClientString(), targets[i], text), client);
+		}
+		else // target is a client
+		{
+			Client *client_target = findClient(targets[i]);
+			if (client_target == NULL)
+				sendToSocket(client->getSocket(), ERR_NOSUCHNICK(client->getClientString(), targets[i]));
+			else
+				sendToSocket(client_target->getSocket(), RPL_PRIVMSG(client->getClientString(), targets[i], text));
+		}
+	}
 }
 
 void Server::part(Client *client, std::string cmd)

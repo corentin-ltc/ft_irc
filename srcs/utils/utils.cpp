@@ -29,7 +29,11 @@ std::string goto_next_word(std::string &str)
 	if (next_word == std::string::npos)
 		str.clear();
 	else
-		str.erase(0, next_word + 1);
+	{
+		while (str[next_word] == ' ')
+			next_word++;
+		str.erase(0, next_word);
+	}
 	return (current_word);
 }
 
@@ -56,6 +60,7 @@ std::vector<std::string> split(std::string source, char delimiter)
 		source.erase(0, pos + 1);
 		pos = source.find(delimiter);
 	}
+	strings.push_back(source);
 	return strings;
 }
 
