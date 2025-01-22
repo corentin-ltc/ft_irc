@@ -158,30 +158,30 @@ void Server::privmsg(Client *client, std::string cmd)
 
 void Server::part(Client *client, std::string cmd)
 {
-	std::string name = client->getNickname();
 	std::string channel_name = goto_next_word(cmd);
+	std::string reason = cmd.empty() ? "No reason given" : cmd;
+
+	if (channel_name.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("PART"))));
 	Channel *channel = findChannel(channel_name);
-	// TODO: Check if the channel exist
 	if (channel == NULL)
-		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(name, channel_name)));
-	// TODO: Check if the user is inside the channel
+		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_name)));
 	if (channel->findUser(client) == NULL)
-		return (sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(name, channel_name)));
-	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName()));
+		return (sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_name)));
+	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName(), reason));
 	disconnectClientFromChannel(client, channel);
 }
 
-/* TODO:
- * Check args count (2 mini) (ERR_NEEDMOREPARAMS) (OPER name password)
- */
 void Server::oper(Client *client, std::string cmd)
 {
 	std::string name = goto_next_word(cmd);
 	std::string pass = cmd;
+
+	if (name.empty() || pass.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("OPER"))));
 	if (name != NAME_ADMIN || pass != PASS_ADMIN)
 		return (this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH));
-	else
-		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
+	this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
 	client->setGlobalOperator();
 }
 

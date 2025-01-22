@@ -7,7 +7,7 @@
 #define RPL_WELCOME(client, nick) ":" + client + " 001 " + nick + " :Welcome to ft_irc, " + nick
 #define RPL_NICK(old_nick, new_nick) ":" + old_nick + " NICK " + new_nick
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
-#define RPL_PART(client, channel) ":" + client + " PART " + channel
+#define RPL_PART(client, channel, reason) ":" + client + " PART " + channel + " :" + reason
 #define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
 #define RPL_PRIVMSG(client, target, message) ":" + client + " PRIVMSG " + target + " :" + message
 #define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
