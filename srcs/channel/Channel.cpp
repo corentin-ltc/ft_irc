@@ -69,6 +69,16 @@ Client *Channel::findUser(std::string nickname)
 	return (NULL);
 }
 
+bool Channel::isOperator(const Client *client) const
+{
+	for (size_t i = 0; i < operators.size(); i++)
+	{
+		if (operators[i] == client)
+			return (true);
+	}
+	return (false);
+}
+
 void Channel::sendToChannel(std::string message)
 {
 	for (size_t i = 0; i < users.size(); i++)

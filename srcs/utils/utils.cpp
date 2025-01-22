@@ -60,7 +60,8 @@ std::vector<std::string> split(std::string source, char delimiter)
 		source.erase(0, pos + 1);
 		pos = source.find(delimiter);
 	}
-	strings.push_back(source);
+	if (source.empty() == false)
+		strings.push_back(source);
 	return strings;
 }
 
