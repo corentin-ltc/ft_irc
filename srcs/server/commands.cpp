@@ -121,10 +121,14 @@ void Server::join(Client *client, std::string cmd)
 }
 
 /* TODO:
- * Handle multiple targets
- * Detect if the target is a channel or a client
- * If client, check if nickname exists, if yes send, else ERR_NOSUCHNICK
- * If channel, check if nickname exists, if yes send, else ERR_NOSUCHNICK
+ - (PRIVMSG target <text to send>)
+ - Check that there is at least one target (ERR_NORECIPIENT)
+ - Check that there is a text to send (ERR_NOTEXTTOSEND)
+ - Handle multiple targets (PRIVMSG target1,target2,#target3 <text>)
+ - Check if the target is a client or a channel
+ - If it's a client, check if it exists (ERR_NOSUCHNICK)
+ - If it's a channel, check that the client is in it (ERR_CANNOTSENDTOCHAN)k
+ - Send to every target with either sendToSocket or sendToChannel, no server-side needed
  */
 void Server::privmsg(Client *client, std::string cmd)
 {
@@ -132,6 +136,7 @@ void Server::privmsg(Client *client, std::string cmd)
 	// TODO: send to everyone except user
 	channel->sendToChannel(":" + client->getClientString() + " PRIVMSG " + channel->getName() + " " + cmd, client);
 }
+
 void Server::part(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
@@ -139,13 +144,17 @@ void Server::part(Client *client, std::string cmd)
 	Channel *channel = findChannel(channel_name);
 	// TODO: Check if the channel exist
 	if (channel == NULL)
-		return; // sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL)
+		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(name, channel_name)));
 	// TODO: Check if the user is inside the channel
 	if (channel->findUser(client) == NULL)
-		return; // sendToSocket(client->getSocket(), ERR_NOTONCHANNEL);
+		return (sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(name, channel_name)));
+	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName()));
 	disconnectClientFromChannel(client, channel);
 }
 
+/* TODO:
+ * Check args count (2 mini) (ERR_NEEDMOREPARAMS) (OPER name password)
+ */
 void Server::oper(Client *client, std::string cmd)
 {
 	std::string name = goto_next_word(cmd);
@@ -156,23 +165,49 @@ void Server::oper(Client *client, std::string cmd)
 		this->sendToSocket(client->getSocket(), RPL_YOUREOPER(client->getNickname()));
 	client->setGlobalOperator();
 }
+
+/* TODO:
+ * Check param numbers (2 mini) (ERR_NEEDMOREPARAMS)
+ * Check if the channel exists (ERR_NOSUCHCHANNEL)
+ * Check if client is in the channel (ERR_NOTONCHANNEL)
+ * Check if client is a channel or global operator (ERR_CHANOPRIVISNEEDED)
+ * Check if target is in the channel (ERR_USERNOTINCHANNEL)
+ * Check if a reason was given (everything after the 2nd argument), if not use a default reason
+ * Use sendToChannel(RPL_KICK) to perform the client-side kick
+ * Use disconnectClientFromChannel() to perform the server-side kick
+ */
 void Server::kick(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
 	std::string channel = goto_next_word(cmd);
 	std::string target = goto_next_word(cmd);
-	// TODO : Permission verification
-	// TODO : Error verification
-	// TODO : Delete users in channel as well
-	// TODO: use channel->sendToChannel(RPL_KICK);
 	for (int i = 4; i <= clients.size() + 3; i++)
 		sendToSocket(i, ":" + name + " KICK " + channel + " " + target + " " + cmd);
 }
 
+/* TODO:
+ - Check args count (2 mini) (ERR_NEEDMOREPARAMS) (INVITE nickname #chan)
+ - Check that the channel exists (ERR_NOSUCHCHANNEL)
+ - Check that the client is in the channel (ERR_NOTONCHANNEL)
+ - Check if mode (+i) is on and if client is channel operator (ERR_CHANOPRIVISNEEDED)
+ - Check if the target is already on the channel (ERR_USERONCHANNEL)
+ - send to client RPL_INVITING and an INVITE message to the target to perform client-side invite
+ - Add the target to channel->invite_list for server-side invite
+ */
 void Server::invite(Client *client, std::string cmd)
 {
 }
 
+/*TODO:
+ - Check args count (1 mini) (ERR_NEEDMOREPARAMS) (TOPIC #chan)
+ - Check if the channel exists (ERR_NOSUCHCHANNEL)
+ - Check if the client is in the channel (ERR_NOTONCHANNEL)
+ - If only 1 argument, just RPL_TOPIC or RPL_NOTOPIC and leave
+ - Else, consider everything after ":" as the new topic, if empty topic must be cleared  (TOPIC #chan :new topic)
+ - Check if mode (+t) is on, if yes check if client is allowed (ERR_CHANOPRIVISNEEDED)
+ - SendToChannel() RPL_TOPIC to update on client-side
+ - Channel->setTopic() to update on server-side
+ */
 void Server::topic(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
@@ -188,6 +223,6 @@ void Server::mode(Client *client, std::string cmd)
 // on critical error, send ERROR and disconnect
 void Server::error(Client *client, std::string reason)
 {
-	this->sendToSocket(client->getSocket(), reason);
+	this->sendToSocket(client->getSocket(), ERROR(reason));
 	this->disconnectClient(client);
 }

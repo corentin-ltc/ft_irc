@@ -24,6 +24,8 @@
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 432 " + client + " " + new_nick + " :Erroneus nickname"
 #define ERR_NICKNAMEINUSE(client, nick) ": 433 " + client + " " + nick + " :Nickname is already in use"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
+#define ERR_NOSUCHCHANNEL(name, channel) ":ft_irc 403 " + name + " " + channel + " :No such channel"
+#define ERR_NOTONCHANNEL(name, channel) ":ft_irc 442 " + name + " " + channel + " :Not on channel"
 
 #define NAME_ADMIN "admin"
 #define PASS_ADMIN "admin"
