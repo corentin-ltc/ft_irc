@@ -62,7 +62,6 @@ void Server::ping(int client_socket, std::string cmd)
 
 void Server::nick(Client *client, std::string cmd)
 {
-
 	std::string old_nick = client->getNickname();
 
 	if (cmd.empty())
@@ -74,7 +73,8 @@ void Server::nick(Client *client, std::string cmd)
 	else
 	{
 		client->setNickname(cmd);
-		this->sendToSocket(client->getSocket(), RPL_NICK(old_nick, cmd));
+		for (int i = 0; i < clients.size(); i++)
+			this->sendToSocket(clients[i]->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
 	}
 }
@@ -233,9 +233,19 @@ void Server::invite(Client *client, std::string cmd)
 void Server::topic(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
-	std::string channel = goto_next_word(cmd);
-	for (int i = 4; i <= clients.size() + 3; i++)
-		sendToSocket(i, ":" + name + " TOPIC " + channel + " " + cmd);
+	std::string channel_string = goto_next_word(cmd);
+	
+	if (channel_string.empty())
+		return (this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("TOPIC"))));
+	Channel *channel = findChannel(channel_string);
+	if (channel == NULL)
+		return (this->sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_string)));
+	if (channel->findUser(client) == NULL)
+		return (this->sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_string)));
+	if (client->isGlobalOperator() == false && channel->isOperator(client) == false)
+		return (this->sendToSocket(client->getSocket(), ERR_CHANOPRIVISNEEDED(client->getClientString(), channel_string)));
+	channel->sendToChannel(":" + name + " TOPIC " + channel_string + " " + cmd);
+	channel->setTopic(client, cmd);
 }
 
 void Server::mode(Client *client, std::string cmd)

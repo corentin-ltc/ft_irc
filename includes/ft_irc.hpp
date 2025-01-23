@@ -10,6 +10,7 @@
 #define RPL_PART(client, channel, reason) ":" + client + " PART " + channel + " :" + reason
 #define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
 #define RPL_PRIVMSG(client, target, message) ":" + client + " PRIVMSG " + target + " :" + message
+#define RPL_NOTOPIC(client, channel) ": 331 " + client + " " + channel + " :No topic is set"
 #define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
 #define RPL_NAMREPLY(client, channel, users) ": 353 " + client + " = " + channel + " :" + users
 #define RPL_ENDOFNAMES(client, channel) ": 366 " + client + " " + channel + " :End of /NAMES list"
