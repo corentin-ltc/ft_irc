@@ -63,6 +63,7 @@ std::vector<std::string> split(std::string source, char delimiter);
 std::string goto_next_word(std::string &str);
 std::vector<std::string> get_args(std::string &str);
 bool checkForbiddenChars(std::string src, std::string leading_chars, std::string charset, std::string ending_chars);
+std::string chanToLower(std::string channel_name);
 
 typedef struct pollfd t_pollfd;
 
