@@ -31,6 +31,10 @@
 #define ERR_NONICKNAMEGIVEN(old_nick) ": 431 " + old_nick + " :No nickname given"
 #define ERR_ERRONEUSENICKNAME(client, new_nick) ": 432 " + client + " " + new_nick + " :Erroneus nickname"
 #define ERR_NICKNAMEINUSE(client, nick) ": 433 " + client + " " + nick + " :Nickname is already in use"
+#define ERR_CHANNELISFULL(client, channel) ": 471 " + client + " " + channel + " :Cannot join channel(+l)"
+#define ERR_INVITEONLYCHAN(client, channel) ": 473 " + client + " " + channel + " :Cannot join channel(+i)"
+#define ERR_BADCHANNELKEY(client, channel) ": 475 " + client + " " + channel + " :Cannot join channel (+k)"
+#define ERR_BADCHANMASK(channel) ": 476 " + channel + " :Bad Channel Mask"
 #define ERR_NOPRIVILEGES(client) ": 481 :" + client + ":Permission Denied- You're not an IRC operator"
 #define ERR_CHANOPRIVISNEEDED(client, channel) ": 482 " + client + " " + channel + " :You're not channel operator"
 #define ERR_NOSUCHCHANNEL(client, channel) ":ft_irc 403 " + client + " " + channel + " :No such channel"
@@ -64,6 +68,8 @@ std::vector<std::string> split(std::string source, char delimiter);
 std::string goto_next_word(std::string &str);
 std::vector<std::string> get_args(std::string &str);
 bool checkForbiddenChars(std::string src, std::string leading_chars, std::string charset, std::string ending_chars);
+std::string chanToLower(std::string channel_name);
+bool checkChannelNameFormat(std::string channel_name);
 
 typedef struct pollfd t_pollfd;
 

@@ -97,29 +97,60 @@ void Server::user(Client *client, std::string cmd)
 }
 
 /* TODO:
- * Handle multiple arguments (JOIN chan1,chan2,chan3)
- * Transform the name to either lower or uppercase, "{}|^" to upper are "[]\~"
- * Check if name is valid ((start with '&', '#', '+' or '!') and no ' ', '^G', ',' inside and 50chars max)
  * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
  * Check if mode (+i) invite and if client was invited
  * Check if mode (+l) client limit and if reached
- * can handle "JOIN 0" if you want (makes you leave all channels)
- * add as channel operator on creation
  */
 void Server::join(Client *client, std::string cmd)
 {
-	std::string channel_name = goto_next_word(cmd);
+	std::string channels_string = goto_next_word(cmd);
+	std::string keys_string = goto_next_word(cmd);
+	std::vector<std::string> channel_names;
+	std::vector<std::string> keys;
 
-	if (channel_name.empty())
+	if (channels_string.empty())
 		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("JOIN"))));
-	Channel *channel = findChannel(channel_name);
-	if (channel == NULL)
+	channel_names = split(channels_string, ',');
+	keys = split(cmd, ',');
+	for (size_t i = 0; i < channel_names.size(); i++)
 	{
-		channels.push_back(new Channel(channel_name));
-		channel = channels[channels.size() - 1];
+		if (checkChannelNameFormat(channel_names[i]) == false)
+		{
+			if (channel_names[i] == "0")
+				disconnectClientFromAllChannels(client, "No reason given");
+			else
+				sendToSocket(client->getSocket(), ERR_BADCHANMASK(channel_names[i]));
+			continue;
+		}
+		std::string channel_name = chanToLower(channel_names[i]);
+		Channel *channel = findChannel(channel_name);
+		if (channel == NULL) // create new channel and set operator
+		{
+			channels.push_back(new Channel(channel_name));
+			channel = channels[channels.size() - 1];
+			channel->getOperators().push_back(client);
+		}
+		else // channel already exists, check modes
+		{
+			// if (channel->getPasswordRequired() == true && (i >= keys.size() || keys[i] != channel->getPassword()))
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_BADCHANNELKEY(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
+			// if (channel->getInviteMode() == true && channel->findInvite(client) == NULL)
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_INVITEONLYCHAN(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
+			// if (channel->getLimitMode() == true && channel->getUsers().size() == channel->getMaxUsers())
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_CHANNELISFULL(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
+		}
+		client->addChannel(channel);
+		channel->addUser(client);
 	}
-	client->addChannel(channel);
-	channel->addUser(client);
 }
 
 void Server::privmsg(Client *client, std::string cmd)
