@@ -103,7 +103,7 @@ void Server::user(Client *client, std::string cmd)
  * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
  * Check if mode (+i) invite and if client was invited
  * Check if mode (+l) client limit and if reached
- * can handle "JOIN 0" if you want (makes you leave all channels)
+ // * can handle "JOIN 0" if you want (makes you leave all channels)
  // * add as channel operator on creation
  */
 void Server::join(Client *client, std::string cmd)
@@ -118,8 +118,15 @@ void Server::join(Client *client, std::string cmd)
 	channel_names = split(channels_string, ',');
 	for (size_t i = 0; i < channel_names.size(); i++)
 	{
+		if (checkChannelNameFormat(channel_names[i]) == false)
+		{
+			if (channel_names[i] == "0")
+				disconnectClientFromAllChannels(client);
+			else
+				sendToSocket(client->getSocket(), ERR_BADCHANMASK(channel_names[i]));
+			continue;
+		}
 		std::string channel_name = chanToLower(channel_names[i]);
-		// todo: check name format
 		Channel *channel = findChannel(channel_name);
 		if (channel == NULL) // create new channel and set operator
 		{
