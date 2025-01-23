@@ -36,6 +36,14 @@ void Channel::addUser(Client *client)
 	Server::sendToSocket(client->getSocket(), RPL_ENDOFNAMES(client->getClientString(), this->name));
 }
 
+void Channel::setTopic(Client *client, std::string t)
+{
+	if (t == "")
+		Server::sendToSocket(client->getSocket(), RPL_NOTOPIC(client->getClientString(), this->name));
+	t.erase(0, 1);
+	this->topic = t;
+}
+
 std::string Channel::getUsersString()
 {
 	std::string list = "";

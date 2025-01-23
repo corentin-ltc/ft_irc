@@ -30,6 +30,7 @@ class Channel
 	Client *findUser(Client *client);
 	Client *findUser(std::string nickname);
 	bool isOperator(const Client *client) const;
+	void setTopic(Client *client, std::string t);
 	void sendToChannel(std::string message);
 	void sendToChannel(std::string message, Client *sender);
 };
