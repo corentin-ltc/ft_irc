@@ -76,3 +76,10 @@ bool checkForbiddenChars(std::string src, std::string leading_chars, std::string
 			return (true);
 	return (false);
 }
+
+std::string chanToLower(std::string channel_name)
+{
+	for (size_t i = 0; i < channel_name.size(); i++)
+		channel_name[i] = tolower(channel_name[i]);
+	return (channel_name);
+}
