@@ -98,7 +98,7 @@ void Server::user(Client *client, std::string cmd)
 
 /* TODO:
  // * Handle multiple arguments (JOIN chan1,chan2,chan3)
- * Transform the name to either lower or uppercase, "{}|^" to upper are "[]\~"
+ // * Transform the name to either lower or uppercase, "{}|^" to upper are "[]\~"
  * Check if name is valid ((start with '&', '#', '+' or '!') and no ' ', '^G', ',' inside and 50chars max)
  * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
  * Check if mode (+i) invite and if client was invited
@@ -119,7 +119,6 @@ void Server::join(Client *client, std::string cmd)
 	for (size_t i = 0; i < channel_names.size(); i++)
 	{
 		std::string channel_name = chanToLower(channel_names[i]);
-		std::cout << "Channel[" << i << "]: " << channel_name << std::endl;
 		// todo: check name format
 		Channel *channel = findChannel(channel_name);
 		if (channel == NULL) // create new channel and set operator
