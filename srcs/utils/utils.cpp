@@ -95,3 +95,14 @@ std::string chanToLower(std::string channel_name)
 	}
 	return (channel_name);
 }
+
+bool checkChannelNameFormat(std::string channel_name)
+{
+	if (channel_name.empty() || channel_name.size() > 50)
+		return (false);
+	if (std::string("&#+!").find(channel_name[0]) == std::string::npos)
+		return (false);
+	if (channel_name.find(' ') != std::string::npos || channel_name.find((char)7) != std::string::npos) // 7 is decimal value for ^G
+		return (false);
+	return (true);
+}
