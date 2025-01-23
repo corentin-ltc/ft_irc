@@ -13,16 +13,20 @@ class Channel
 	std::string topic;
 	std::vector<Client *> users;
 	std::vector<Client *> operators;
+	std::vector<std::string> invites;
 
   public:
 	// Constructors:
-	Channel(std::string name) : name(name) {};
+	Channel(std::string name)
+		: name(name) {};
 
 	// Getter and setters:
 	std::string getName() const;
 	std::string getPassword() const;
 	std::vector<Client *> &getUsers();
 	std::vector<Client *> &getOperators();
+	bool findInvite(std::string name);
+	void addInvite(std::string name);
 
   public: // Members functions
 	void addUser(Client *client);
