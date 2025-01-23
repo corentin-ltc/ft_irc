@@ -39,6 +39,7 @@ class Server
   private: // client communication
 	void acceptNewClient();
 	void handleClient(int client_socket);
+	void disconnectClientFromAllChannels(Client *client);
 	void disconnectClientFromChannel(Client *client, Channel *channel);
 	void disconnectClient(Client *client);
 	void disconnectAll();

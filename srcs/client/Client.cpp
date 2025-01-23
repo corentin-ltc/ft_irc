@@ -1,12 +1,14 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-Client::Client(int fd) : client_socket(fd), registered(false), globalOperator(false), command_ready(false)
+Client::Client(int fd)
+	: client_socket(fd), registered(false), globalOperator(false), command_ready(false)
 {
 	std::cerr << "[Client fd constructor]\n";
 }
 
-Client::Client() : client_socket(-1), registered(false)
+Client::Client()
+	: client_socket(-1), registered(false)
 {
 	std::cerr << "[Client default constructor]\n";
 }
