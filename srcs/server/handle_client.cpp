@@ -70,13 +70,7 @@ void Server::disconnectClient(Client *client)
 		}
 	}
 	// removes the client from each channel
-	std::vector<Channel *> client_channels = client->getChannels();
-	while (client_channels.empty() == false)
-	{
-		client_channels[0]->sendToChannel(RPL_PART(client->getClientString(), client_channels[0]->getName(), "leaving the server"));
-		disconnectClientFromChannel(client, client_channels[0]);
-		client_channels.erase(client_channels.begin());
-	}
+	disconnectClientFromAllChannels(client, "Leaving the server");
 	// removes the client from the server
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
@@ -100,6 +94,17 @@ void Server::disconnectAll()
 		delete this->clients[i];
 	for (size_t i = 0; i < channels.size(); i++)
 		delete channels[i];
+}
+
+void Server::disconnectClientFromAllChannels(Client *client, std::string reason)
+{
+	std::vector<Channel *> client_channels = client->getChannels();
+	while (client_channels.empty() == false)
+	{
+		client_channels[0]->sendToChannel(RPL_PART(client->getClientString(), client_channels[0]->getName(), reason));
+		disconnectClientFromChannel(client, client_channels[0]);
+		client_channels.erase(client_channels.begin());
+	}
 }
 
 void Server::disconnectClientFromChannel(Client *client, Channel *channel)

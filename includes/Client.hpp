@@ -46,5 +46,4 @@ class Client
 	// methods
 	std::string getClientString() const;
 	std::string getChannelsString() const;
-	void leaveAllChannels();
 };

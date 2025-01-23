@@ -76,3 +76,33 @@ bool checkForbiddenChars(std::string src, std::string leading_chars, std::string
 			return (true);
 	return (false);
 }
+
+std::string chanToLower(std::string channel_name)
+{
+	for (size_t i = 0; i < channel_name.size(); i++)
+	{
+		char c = channel_name[i];
+		if (std::isalpha(c))
+			channel_name[i] = tolower(c);
+		else if (c == '[')
+			channel_name[i] = '{';
+		else if (c == ']')
+			channel_name[i] = '}';
+		else if (c == '\\')
+			channel_name[i] = '|';
+		else if (c == '~')
+			channel_name[i] = '^';
+	}
+	return (channel_name);
+}
+
+bool checkChannelNameFormat(std::string channel_name)
+{
+	if (channel_name.empty() || channel_name.size() > 50)
+		return (false);
+	if (std::string("&#+!").find(channel_name[0]) == std::string::npos)
+		return (false);
+	if (channel_name.find(' ') != std::string::npos || channel_name.find((char)7) != std::string::npos) // 7 is decimal value for ^G
+		return (false);
+	return (true);
+}
