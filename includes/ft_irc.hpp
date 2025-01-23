@@ -9,9 +9,11 @@
 #define RPL_YOUREOPER(client) client + " :You are now an IRC operator"
 #define RPL_PART(client, channel, reason) ":" + client + " PART " + channel + " :" + reason
 #define RPL_JOIN(client, channel) ":" + client + " JOIN " + channel
+#define RPL_INVITE(client, nick, channel) ":" + client + " INVITE " + nick + " " + channel
 #define RPL_PRIVMSG(client, target, message) ":" + client + " PRIVMSG " + target + " :" + message
 #define RPL_NOTOPIC(client, channel) ": 331 " + client + " " + channel + " :No topic is set"
 #define RPL_TOPIC(client, channel, topic) ": 332 " + client + " " + channel + " :" + topic
+#define RPL_INVITING(client, nick, channel) ": 341 " + client + " " + nick + " channel"
 #define RPL_NAMREPLY(client, channel, users) ": 353 " + client + " = " + channel + " :" + users
 #define RPL_ENDOFNAMES(client, channel) ": 366 " + client + " " + channel + " :End of /NAMES list"
 #define RPL_KICK(client, channel, target, reason) ":" + client + " KICK " + channel + " " + target + " :" + reason
@@ -24,6 +26,7 @@
 #define ERR_UNKNOWNCOMMAND(client, command) ": 421 " + client + " " + command + " :Unknown command"
 #define ERROR(reason) "ERROR :" + reason
 #define ERR_USERNOTINCHANNEL(client, nick, channel) ": 441 " + client + " " + nick + " " + channel + " :They aren't on that channel"
+#define ERR_USERONCHANNEL(client, nick, channel) ": 443 " + client + " " + nick + " " + channel + " :is already on channel"
 #define ERR_NOTREGISTERED ": 451 : You have not registered"
 #define ERR_NEEDMOREPARAMS(command) ": 461 " + command + " :Not enough parameters"
 #define ERR_ALREADYREGISTERED ": 462 :Unauthorized command (already registered)"
