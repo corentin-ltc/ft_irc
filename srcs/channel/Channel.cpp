@@ -99,3 +99,16 @@ void Channel::sendToChannel(std::string message, Client *sender)
 		if (users[i] != sender)
 			Server::sendToSocket(users[i]->getSocket(), message);
 }
+
+bool Channel::findInvite(std::string name)
+{
+	for (size_t i = 0; i < invites.size(); i++)
+		if (invites[i] == name)
+			return (true);
+	return (false);
+}
+
+void Channel::addInvite(std::string name)
+{
+	this->invites.push_back(name);
+}
