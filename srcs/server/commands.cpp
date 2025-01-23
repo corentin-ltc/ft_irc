@@ -97,14 +97,9 @@ void Server::user(Client *client, std::string cmd)
 }
 
 /* TODO:
- // * Handle multiple arguments (JOIN chan1,chan2,chan3)
- // * Transform the name to either lower or uppercase, "{}|^" to upper are "[]\~"
- * Check if name is valid ((start with '&', '#', '+' or '!') and no ' ', '^G', ',' inside and 50chars max)
  * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
  * Check if mode (+i) invite and if client was invited
  * Check if mode (+l) client limit and if reached
- // * can handle "JOIN 0" if you want (makes you leave all channels)
- // * add as channel operator on creation
  */
 void Server::join(Client *client, std::string cmd)
 {
@@ -116,12 +111,13 @@ void Server::join(Client *client, std::string cmd)
 	if (channels_string.empty())
 		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("JOIN"))));
 	channel_names = split(channels_string, ',');
+	keys = split(cmd, ',');
 	for (size_t i = 0; i < channel_names.size(); i++)
 	{
 		if (checkChannelNameFormat(channel_names[i]) == false)
 		{
 			if (channel_names[i] == "0")
-				disconnectClientFromAllChannels(client);
+				disconnectClientFromAllChannels(client, "No reason given");
 			else
 				sendToSocket(client->getSocket(), ERR_BADCHANMASK(channel_names[i]));
 			continue;
@@ -134,8 +130,23 @@ void Server::join(Client *client, std::string cmd)
 			channel = channels[channels.size() - 1];
 			channel->getOperators().push_back(client);
 		}
-		else // channel already exists, check if he can join
+		else // channel already exists, check modes
 		{
+			// if (channel->getPasswordRequired() == true && (i >= keys.size() || keys[i] != channel->getPassword()))
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_BADCHANNELKEY(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
+			// if (channel->getInviteMode() == true && channel->findInvite(client) == NULL)
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_INVITEONLYCHAN(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
+			// if (channel->getLimitMode() == true && channel->getUsers().size() == channel->getMaxUsers())
+			// {
+			// 	sendToSocket(client->getSocket(), ERR_CHANNELISFULL(client->getClientString(), channel_names[i]));
+			// 	continue;
+			// }
 		}
 		client->addChannel(channel);
 		channel->addUser(client);
