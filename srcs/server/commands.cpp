@@ -96,11 +96,6 @@ void Server::user(Client *client, std::string cmd)
 	}
 }
 
-/* TODO:
- * Check if mode (+k) password. client syntax : (JOIN chan1 password,chan2 password)
- * Check if mode (+i) invite and if client was invited
- * Check if mode (+l) client limit and if reached
- */
 void Server::join(Client *client, std::string cmd)
 {
 	std::string channels_string = goto_next_word(cmd);
@@ -137,7 +132,7 @@ void Server::join(Client *client, std::string cmd)
 			// 	sendToSocket(client->getSocket(), ERR_BADCHANNELKEY(client->getClientString(), channel_names[i]));
 			// 	continue;
 			// }
-			// if (channel->getInviteMode() == true && channel->findInvite(client) == NULL)
+			// if (channel->getInviteMode() == true && channel->findInvite(client->getName()) == NULL)
 			// {
 			// 	sendToSocket(client->getSocket(), ERR_INVITEONLYCHAN(client->getClientString(), channel_names[i]));
 			// 	continue;
@@ -238,17 +233,28 @@ void Server::kick(Client *client, std::string cmd)
 	disconnectClientFromChannel(channel->findUser(target_string), channel);
 }
 
-/* TODO:
- - Check args count (2 mini) (ERR_NEEDMOREPARAMS) (INVITE nickname #chan)
- - Check that the channel exists (ERR_NOSUCHCHANNEL)
- - Check that the client is in the channel (ERR_NOTONCHANNEL)
- - Check if mode (+i) is on and if client is channel operator (ERR_CHANOPRIVISNEEDED)
- - Check if the target is already on the channel (ERR_USERONCHANNEL)
- - send to client RPL_INVITING and an INVITE message to the target to perform client-side invite
- - Add the target to channel->invite_list for server-side invite
- */
 void Server::invite(Client *client, std::string cmd)
 {
+	std::string target_name = goto_next_word(cmd);
+	std::string channel_name = goto_next_word(cmd);
+
+	if (target_name.empty() || channel_name.empty())
+		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("INVITE"))));
+	Channel *channel = findChannel(channel_name);
+	if (channel == NULL)
+		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_name)));
+	if (channel->findUser(client) == NULL)
+		return (sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_name)));
+	// if (channel->getInviteMode() == true && (client->isGlobalOperator() == false && channel->isOperator(client) == false))
+	// 	return (sendToSocket(client->getSocket(), ERR_CHANOPRIVISNEEDED(client->getClientString(), channel_name)));
+	Client *target = findClient(target_name);
+	if (target != NULL && channel->findUser(target))
+		return (sendToSocket(client->getSocket(), ERR_USERONCHANNEL(client->getClientString(), target_name, channel_name)));
+	sendToSocket(client->getSocket(), RPL_INVITING(client->getClientString(), target_name, channel_name));
+	if (target != NULL)
+		sendToSocket(target->getSocket(), RPL_INVITE(client->getClientString(), target_name, channel_name));
+	if (channel->findInvite(target_name) == false)
+		channel->addInvite(target_name);
 }
 
 /*TODO:
@@ -265,7 +271,7 @@ void Server::topic(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
 	std::string channel_string = goto_next_word(cmd);
-	
+
 	if (channel_string.empty())
 		return (this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("TOPIC"))));
 	Channel *channel = findChannel(channel_string);
@@ -284,6 +290,7 @@ void Server::mode(Client *client, std::string cmd)
 }
 
 // on critical error, send ERROR and disconnect
+// often used when not providing a password, here I chose to allow the user to be able to retry a PASS while staying connected
 void Server::error(Client *client, std::string reason)
 {
 	this->sendToSocket(client->getSocket(), ERROR(reason));
