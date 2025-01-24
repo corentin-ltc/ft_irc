@@ -213,8 +213,32 @@ void Server::mode(Client *client, std::string cmd)
 			channel->setPasswordRequired(true);
 			channel->setPassword(new_password);
 		}
-		else if (fla)
+		else if (flag == "-o")
+		{
 			
+		}
+		else if (flag == "+o")
+		{
+
+		}
+		else if (flag == "-l")
+			channel->setUserLimit(__INT_MAX__);
+		else if (flag == "+l")
+		{
+
+			std::string limit_str = cmd.substr(flag_index + 2, cmd.size());
+			if (limit_str.size() == 0)
+				return (sendToSocket(client->getSocket(), "Not enough parameter for user limit."));
+			for (std::string::iterator it = limit_str.begin(); it != limit_str.end(); it++)
+			{
+				if (!isdigit(*it))
+					return (sendToSocket(client->getSocket(), "Wrong parameter for user limit."));
+			}
+			int limit = atoi(limit_str.c_str());
+			if (limit <= 0)
+					return (sendToSocket(client->getSocket(), "User limit can't be negative."));
+			channel->setUserLimit(limit);
+		}
 	}
 	else // set mode for a user
 	{

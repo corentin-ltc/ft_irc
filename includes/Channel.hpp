@@ -15,7 +15,7 @@ class Channel
 	std::vector<Client *> 	users_invited;
 	std::vector<Client *> 	operators;
 	bool					password_required;
-	bool					invitation_mode;	
+	bool					invitation_mode;
 	unsigned int			user_limit;
 
   public:
@@ -29,6 +29,7 @@ class Channel
 	bool 					isPasswordRequired() const;
 	void 					setPasswordRequired(bool state);
 	void 					setInvitationMode(bool state);
+	void 					setUserLimit(unsigned int limit);
 	void 					setPassword(std::string new_password);
 	std::vector<Client *>	&getUsers();
 	std::vector<Client *>	&getOperators();

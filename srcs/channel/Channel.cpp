@@ -27,6 +27,11 @@ void Channel::setPassword(std::string new_password)
 	password = new_password;
 }
 
+void Channel::setUserLimit(unsigned int limit)
+{
+	user_limit = limit;
+}
+
 void Channel::setInvitationMode(bool state)
 {
 	invitation_mode = state;

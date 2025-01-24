@@ -35,6 +35,7 @@
 #include <iostream>
 #include <netinet/in.h> // struct sockaddr_in
 #include <signal.h>
+#include <stdlib.h>
 #include <string>
 #include <sys/poll.h> // struct pollfd
 #include <sys/poll.h>
