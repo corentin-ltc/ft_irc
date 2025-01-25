@@ -24,6 +24,8 @@ void Server::handleCommand(Client *client, std::string cmd)
 		return (sendToSocket(client->getSocket(), ERR_NOTREGISTERED));
 	if (cmd_name == "JOIN")
 		return (join(client, cmd));
+	if (cmd_name == "MODE")
+		return (mode(client, cmd));
 	if (cmd_name == "PRIVMSG")
 		return (privmsg(client, cmd));
 	if (cmd_name == "PART")
@@ -40,6 +42,7 @@ void Server::handleCommand(Client *client, std::string cmd)
 	if (cmd_name == "MODE")
 		return (mode(client, cmd));
 	this->sendToSocket(client->getSocket(), ERR_UNKNOWNCOMMAND(client->getNickname(), cmd_name));
+
 }
 
 void Server::pass(Client *client, std::string cmd)
@@ -146,6 +149,23 @@ void Server::join(Client *client, std::string cmd)
 		client->addChannel(channel);
 		channel->addUser(client);
 	}
+
+	if (channel->isInvitationMode())
+	{
+		if (channel->findUserInInvitationList(client))
+		{
+			client->addChannel(channel);
+			channel->addUser(client);
+		}
+		else
+		{
+			sendToSocket(client->getSocket(), "Sorry you were not invited to this channel.");
+			return ;
+		}
+	}
+	else
+		client->addChannel(channel);
+		channel->addUser(client);
 }
 
 void Server::privmsg(Client *client, std::string cmd)
@@ -287,6 +307,63 @@ void Server::topic(Client *client, std::string cmd)
 
 void Server::mode(Client *client, std::string cmd)
 {
+	int flag_index = cmd.find_first_of(" ");
+	std::string flag = cmd.substr(flag_index + 1, cmd.find_last_of(" "));
+	if (cmd[0] == '#') // set mode for a channel
+	{
+		Channel *channel = findChannel(cmd.substr(0, flag_index));
+		if (!channel)
+			return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), cmd.substr(0, flag_index))));
+		if (flag == "+i")
+			channel->setInvitationMode(true);
+		else if (flag == "-i")
+			channel->setInvitationMode(false);
+		else if (flag == "-k")
+			channel->setPasswordRequired(false);
+		else if (flag == "+k")
+		{
+			std::string new_password = cmd.substr(flag_index + 2, cmd.size());
+			if (new_password.size() == 0)
+				return;// not enough arguments
+			channel->setPasswordRequired(true);
+			channel->setPassword(new_password);
+		}
+		else if (flag == "-o")
+		{
+			
+		}
+		else if (flag == "+o")
+		{
+
+		}
+		else if (flag == "-l")
+			channel->setUserLimit(__INT_MAX__);
+		else if (flag == "+l")
+		{
+
+			std::string limit_str = cmd.substr(flag_index + 2, cmd.size());
+			if (limit_str.size() == 0)
+				return (sendToSocket(client->getSocket(), "Not enough parameter for user limit."));
+			for (std::string::iterator it = limit_str.begin(); it != limit_str.end(); it++)
+			{
+				if (!isdigit(*it))
+					return (sendToSocket(client->getSocket(), "Wrong parameter for user limit."));
+			}
+			int limit = atoi(limit_str.c_str());
+			if (limit <= 0)
+					return (sendToSocket(client->getSocket(), "User limit can't be negative."));
+			channel->setUserLimit(limit);
+		}
+	}
+	else // set mode for a user
+	{
+		// find user
+	}
+
+
+
+
+	std::cout << "Flag = " << flag << std::endl;
 }
 
 // on critical error, send ERROR and disconnect
