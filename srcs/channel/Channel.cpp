@@ -66,6 +66,14 @@ void Channel::addUser(Client *client)
 	Server::sendToSocket(client->getSocket(), RPL_ENDOFNAMES(client->getClientString(), this->name));
 }
 
+void Channel::setTopic(Client *client, std::string t)
+{
+	if (t == "")
+		Server::sendToSocket(client->getSocket(), RPL_NOTOPIC(client->getClientString(), this->name));
+	t.erase(0, 1);
+	this->topic = t;
+}
+
 std::string Channel::getUsersString()
 {
 	std::string list = "";
@@ -109,6 +117,16 @@ Client *Channel::findUser(std::string nickname)
 	return (NULL);
 }
 
+bool Channel::isOperator(const Client *client) const
+{
+	for (size_t i = 0; i < operators.size(); i++)
+	{
+		if (operators[i] == client)
+			return (true);
+	}
+	return (false);
+}
+
 void Channel::sendToChannel(std::string message)
 {
 	for (size_t i = 0; i < users.size(); i++)
@@ -120,4 +138,17 @@ void Channel::sendToChannel(std::string message, Client *sender)
 	for (size_t i = 0; i < users.size(); i++)
 		if (users[i] != sender)
 			Server::sendToSocket(users[i]->getSocket(), message);
+}
+
+bool Channel::findInvite(std::string name)
+{
+	for (size_t i = 0; i < invites.size(); i++)
+		if (invites[i] == name)
+			return (true);
+	return (false);
+}
+
+void Channel::addInvite(std::string name)
+{
+	this->invites.push_back(name);
 }

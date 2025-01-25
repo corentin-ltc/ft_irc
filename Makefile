@@ -43,7 +43,7 @@ HEADERS = includes/Client.hpp includes/ft_irc.hpp includes/Server.hpp includes/C
 
 ######################## BASIC RULES ########################
 
-#TODO: add phony
+.PHONY: all re clean fclean test leak
 
 all : 
 	${MAKE} -j ${NAME}
@@ -70,7 +70,7 @@ ${OBJS_DIR} :
 	mkdir $@channel
 	mkdir $@utils
 
-${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp
+${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp ${HEADERS}
 	${CC} ${FLAGS} ${EXTRAFLAGS} ${CPPFLAGS} ${foreach include, ${INCLUDES},-I ${include}} -c $< -o $@
 
 ######################## TEST ########################

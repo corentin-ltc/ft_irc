@@ -29,7 +29,11 @@ std::string goto_next_word(std::string &str)
 	if (next_word == std::string::npos)
 		str.clear();
 	else
-		str.erase(0, next_word + 1);
+	{
+		while (str[next_word] == ' ')
+			next_word++;
+		str.erase(0, next_word);
+	}
 	return (current_word);
 }
 
@@ -56,5 +60,49 @@ std::vector<std::string> split(std::string source, char delimiter)
 		source.erase(0, pos + 1);
 		pos = source.find(delimiter);
 	}
+	if (source.empty() == false)
+		strings.push_back(source);
 	return strings;
+}
+
+bool checkForbiddenChars(std::string src, std::string leading_chars, std::string charset, std::string ending_chars)
+{
+	if (leading_chars.find(src[0]) != std::string::npos)
+		return (true);
+	if (ending_chars.find(src[src.size() - 1]) != std::string::npos)
+		return (true);
+	for (size_t i = 0; i < charset.size(); i++)
+		if (src.find(charset[i]) != std::string::npos)
+			return (true);
+	return (false);
+}
+
+std::string chanToLower(std::string channel_name)
+{
+	for (size_t i = 0; i < channel_name.size(); i++)
+	{
+		char c = channel_name[i];
+		if (std::isalpha(c))
+			channel_name[i] = tolower(c);
+		else if (c == '[')
+			channel_name[i] = '{';
+		else if (c == ']')
+			channel_name[i] = '}';
+		else if (c == '\\')
+			channel_name[i] = '|';
+		else if (c == '~')
+			channel_name[i] = '^';
+	}
+	return (channel_name);
+}
+
+bool checkChannelNameFormat(std::string channel_name)
+{
+	if (channel_name.empty() || channel_name.size() > 50)
+		return (false);
+	if (std::string("&#+!").find(channel_name[0]) == std::string::npos)
+		return (false);
+	if (channel_name.find(' ') != std::string::npos || channel_name.find((char)7) != std::string::npos) // 7 is decimal value for ^G
+		return (false);
+	return (true);
 }
