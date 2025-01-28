@@ -46,6 +46,8 @@ void Server::pass(Client *client, std::string cmd)
 {
 	if (client->isRegistered())
 		this->sendToSocket(client->getSocket(), ERR_ALREADYREGISTERED);
+	else if (cmd.empty())
+		this->sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("PASS")));
 	else if (this->password != cmd)
 		this->sendToSocket(client->getSocket(), ERR_PASSWDMISMATCH);
 	else
@@ -66,7 +68,7 @@ void Server::nick(Client *client, std::string cmd)
 
 	if (cmd.empty())
 		this->sendToSocket(client->getSocket(), ERR_NONICKNAMEGIVEN(old_nick));
-	else if (checkForbiddenChars(cmd, "#&:", " ", ""))
+	else if (cmd.size() > 9 || checkForbiddenChars(cmd, "#&:", " ", ""))
 		this->sendToSocket(client->getSocket(), ERR_ERRONEUSENICKNAME(old_nick, cmd));
 	else if (findClient(cmd))
 		this->sendToSocket(client->getSocket(), ERR_NICKNAMEINUSE(client->getClientString(), cmd));
@@ -182,6 +184,7 @@ void Server::privmsg(Client *client, std::string cmd)
 	}
 }
 
+// enlever le :
 void Server::part(Client *client, std::string cmd)
 {
 	std::string channel_name = goto_next_word(cmd);
@@ -211,6 +214,7 @@ void Server::oper(Client *client, std::string cmd)
 	client->setGlobalOperator();
 }
 
+// ENLEVER LE :
 void Server::kick(Client *client, std::string cmd)
 {
 	std::string channel_string = goto_next_word(cmd);
