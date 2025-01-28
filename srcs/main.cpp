@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include <cstdlib>
 
+// TODO: remove default arguments
 int main(int argc, char **argv)
 {
 	unsigned short port = 6667;
@@ -8,10 +9,10 @@ int main(int argc, char **argv)
 
 	try
 	{
-		if (argc > 1)
-			port = parse_port(argv[1]);
-		if (argc > 2)
-			password = parse_password(argv[2]);
+		if (argc < 3)
+			throw std::runtime_error("Usage: ./ircserv <port> <password>");
+		port = parse_port(argv[1]);
+		password = parse_password(argv[2]);
 
 		Server server(port, password);
 		server.initServer();

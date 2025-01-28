@@ -78,10 +78,10 @@ ${OBJS_DIR}%.o : ${SRCS_DIR}%.cpp ${HEADERS}
 test : base
 
 base : all
-	./${NAME}
+	./${NAME} 6667 password
 
 err : all
-	./${NAME} 2>/dev/null
+	${MAKE} test 2>/dev/null
 
 leak : all
 	${VALGRIND} ./${NAME}
