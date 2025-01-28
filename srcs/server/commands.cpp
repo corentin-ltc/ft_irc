@@ -184,7 +184,6 @@ void Server::privmsg(Client *client, std::string cmd)
 	}
 }
 
-// enlever le :
 void Server::part(Client *client, std::string cmd)
 {
 	std::string channel_name = goto_next_word(cmd);
@@ -197,6 +196,8 @@ void Server::part(Client *client, std::string cmd)
 		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_name)));
 	if (channel->findUser(client) == NULL)
 		return (sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_name)));
+	if (reason.at(0) == ':')
+		reason.erase(reason.begin());
 	channel->sendToChannel(RPL_PART(client->getClientString(), channel->getName(), reason));
 	disconnectClientFromChannel(client, channel);
 }
@@ -214,7 +215,6 @@ void Server::oper(Client *client, std::string cmd)
 	client->setGlobalOperator();
 }
 
-// ENLEVER LE :
 void Server::kick(Client *client, std::string cmd)
 {
 	std::string channel_string = goto_next_word(cmd);
@@ -233,6 +233,8 @@ void Server::kick(Client *client, std::string cmd)
 	Client *target = channel->findUser(target_string);
 	if (target == NULL)
 		return (this->sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getClientString(), target_string, channel_string)));
+	if (reason.at(0) == ':')
+		reason.erase(reason.begin());
 	channel->sendToChannel(RPL_KICK(client->getClientString(), channel_string, target_string, reason));
 	disconnectClientFromChannel(channel->findUser(target_string), channel);
 }
