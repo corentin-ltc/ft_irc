@@ -7,6 +7,42 @@ std::string Channel::getName() const
 	return (this->name);
 }
 
+unsigned int Channel::getMaxUsers() const
+{
+	return (max_users);
+}
+
+
+bool Channel::isInvitationMode() const
+{
+	return (invitation_mode);
+}
+
+bool Channel::isPasswordRequired() const
+{
+	return (password_required);
+}
+
+void Channel::setPasswordRequired(bool state)
+{
+	password_required = state;
+}
+
+void Channel::setPassword(std::string new_password)
+{
+	password = new_password;
+}
+
+void Channel::setUserLimit(unsigned int limit)
+{
+	max_users = limit;
+}
+
+void Channel::setInvitationMode(bool state)
+{
+	invitation_mode = state;
+}
+
 std::string Channel::getPassword() const
 {
 	return (this->password);

@@ -14,18 +14,30 @@ class Channel
 	std::vector<Client *> users;
 	std::vector<Client *> operators;
 	std::vector<std::string> invites;
+	
+	bool					password_required;
+	bool					invitation_mode;
+	unsigned int			max_users;
 
   public:
 	// Constructors:
 	Channel(std::string name)
-		: name(name) {};
+		: name(name) , max_users(__INT_MAX__){};
 
 	// Getter and setters:
-	std::string getName() const;
-	std::string getPassword() const;
-	std::vector<Client *> &getUsers();
-	std::vector<Client *> &getOperators();
-	bool findInvite(std::string name);
+	std::string				getName() const;
+	std::string				getPassword() const;
+	std::vector<Client *> 	&getUsers();
+	std::vector<Client *> 	&getOperators();
+	unsigned int			getMaxUsers() const;
+	bool 					findInvite(std::string name);
+	bool 					isInvitationMode() const;
+	void 					setInvitationMode(bool state);
+	void 					setUserLimit(unsigned int limit);
+	void 					setPasswordRequired(bool state);
+	bool 					isPasswordRequired() const;
+	void 					setPassword(std::string new_password);
+
 	void addInvite(std::string name);
 
   public: // Members functions
