@@ -75,7 +75,7 @@ void Server::nick(Client *client, std::string cmd)
 	else
 	{
 		client->setNickname(cmd);
-		for (int i = 0; i < clients.size(); i++)
+		for (size_t i = 0; i < clients.size(); i++)
 			this->sendToSocket(clients[i]->getSocket(), RPL_NICK(old_nick, cmd));
 		client->setCommandReady();
 	}
@@ -293,6 +293,8 @@ void Server::topic(Client *client, std::string cmd)
 
 void Server::mode(Client *client, std::string cmd)
 {
+	(void)cmd;
+	(void)client;
 }
 
 // on critical error, send ERROR and disconnect

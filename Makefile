@@ -4,7 +4,7 @@ NAME = ircserv
 
 CC = c++
 
-FLAGS = #-Wall -Wextra -Werror # errors
+FLAGS = -Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
 FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
 FLAGS += -g3 # opti
@@ -46,7 +46,7 @@ HEADERS = includes/Client.hpp includes/ft_irc.hpp includes/Server.hpp includes/C
 .PHONY: all re clean fclean test leak
 
 all : 
-	${MAKE} -j ${NAME}
+	${MAKE} ${NAME}
 
 re : fclean
 	${MAKE} all
@@ -84,4 +84,4 @@ err : all
 	${MAKE} test 2>/dev/null
 
 leak : all
-	${VALGRIND} ./${NAME}
+	${VALGRIND} ./${NAME} 6667 password
