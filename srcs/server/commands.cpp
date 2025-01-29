@@ -242,9 +242,12 @@ void Server::mode(Client *client, std::string cmd)
 	}
 	else // set mode for a user
 	{
-		// find user
-	}
+		Client *client = findClient(goto_next_word(cmd));
+		if (!client)
+					return (sendToSocket(client->getSocket(), "User not found"));
 
+	}
+	
 
 
 
