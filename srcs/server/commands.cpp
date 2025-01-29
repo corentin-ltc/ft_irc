@@ -295,7 +295,7 @@ void Server::mode(Client *client, std::string cmd)
 {
 	int flag_index = cmd.find_first_of(" ");
 	std::string flag = cmd.substr(flag_index + 1, 2);
-	std::cout << "Flag = " << flag << std::endl;
+	std::cout << "flag=" << flag << std::endl;
 	if (cmd[0] != '#') // set mode for a channel
 		return;
 	Channel *channel = findChannel(cmd.substr(0, flag_index));
@@ -309,11 +309,20 @@ void Server::mode(Client *client, std::string cmd)
 		channel->setPasswordRequired(false);
 	else if (flag == "+k")
 	{
-		std::string new_password = cmd.substr(flag_index + 2, cmd.size());
+		std::string new_password = cmd.substr(flag_index + 4);
 		if (new_password.size() == 0)
 			return;// not enough arguments
 		channel->setPasswordRequired(true);
+		std::cout << "password=" << new_password <<"\n";
 		channel->setPassword(new_password);
+	}
+	else if (flag == "-t")
+	{
+		
+	}
+	else if (flag == "+t")
+	{
+		
 	}
 	else if (flag == "-o")
 	{
