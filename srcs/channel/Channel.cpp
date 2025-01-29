@@ -139,8 +139,10 @@ void Channel::sendToChannel(std::string message, Client *sender)
 bool Channel::findInvite(std::string name)
 {
 	for (size_t i = 0; i < invites.size(); i++)
+	{
 		if (invites[i] == name)
 			return (true);
+	}
 	return (false);
 }
 
