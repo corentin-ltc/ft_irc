@@ -108,7 +108,7 @@ void Server::join(Client *client, std::string cmd)
 	if (channels_string.empty())
 		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("JOIN"))));
 	channel_names = split(channels_string, ',');
-	keys = split(cmd, ',');
+	keys = split(keys_string, ',');
 	for (size_t i = 0; i < channel_names.size(); i++)
 	{
 		if (checkChannelNameFormat(channel_names[i]) == false)
@@ -295,8 +295,7 @@ void Server::mode(Client *client, std::string cmd)
 {
 	int flag_index = cmd.find_first_of(" ");
 	std::string flag = cmd.substr(flag_index + 1, 2);
-	std::cout << "flag=" << flag << std::endl;
-	if (cmd[0] != '#') // set mode for a channel
+	if (cmd[0] != '#') // set mode for users are not handled
 		return;
 	Channel *channel = findChannel(cmd.substr(0, flag_index));
 	if (!channel)
@@ -313,7 +312,6 @@ void Server::mode(Client *client, std::string cmd)
 		if (new_password.size() == 0)
 			return;// not enough arguments
 		channel->setPasswordRequired(true);
-		std::cout << "password=" << new_password <<"\n";
 		channel->setPassword(new_password);
 	}
 	else if (flag == "-t")
