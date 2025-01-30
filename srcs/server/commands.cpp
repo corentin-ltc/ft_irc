@@ -285,7 +285,7 @@ void Server::topic(Client *client, std::string cmd)
 		return (this->sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), channel_string)));
 	if (channel->findUser(client) == NULL)
 		return (this->sendToSocket(client->getSocket(), ERR_NOTONCHANNEL(client->getClientString(), channel_string)));
-	if (client->isGlobalOperator() == false && channel->isOperator(client) == false)
+	if (channel->CanEveryoneChangeTopic() == false && client->isGlobalOperator() == false && channel->isOperator(client) == false)
 		return (this->sendToSocket(client->getSocket(), ERR_CHANOPRIVISNEEDED(client->getClientString(), channel_string)));
 	channel->sendToChannel(":" + name + " TOPIC " + channel_string + " " + cmd);
 	channel->setTopic(client, cmd);
@@ -315,19 +315,34 @@ void Server::mode(Client *client, std::string cmd)
 		channel->setPassword(new_password);
 	}
 	else if (flag == "-t")
-	{
-		
-	}
+		channel->SetEveryoneChangeTopic(true);
 	else if (flag == "+t")
-	{
-		
-	}
+		channel->SetEveryoneChangeTopic(false);
 	else if (flag == "-o")
 	{
-		
+		Client *newOperator;
+		std::string new_client = cmd.substr(flag_index + 4);
+		if (new_client.size() == 0)
+			return;// not enough arguments
+		newOperator = channel->findUser(new_client);
+		if (!newOperator)
+			return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getNickname(), new_client, channel->getName())));
+		for (std::vector<Client *>::iterator it = channel->getOperators().begin(); it != channel->getOperators().end(); it++)
+		{
+			if (*it == newOperator)
+				channel->getOperators().erase(it);
+		}
 	}
 	else if (flag == "+o")
 	{
+		Client *newOperator;
+		std::string new_client = cmd.substr(flag_index + 4);
+		if (new_client.size() == 0)
+			return;// not enough arguments
+		newOperator = channel->findUser(new_client);
+		if (!newOperator)
+			return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getNickname(), new_client, channel->getName())));
+		channel->getOperators().push_back(newOperator);
 	}
 	else if (flag == "-l")
 		channel->setUserLimit(__INT_MAX__);
@@ -347,7 +362,6 @@ void Server::mode(Client *client, std::string cmd)
 				return (sendToSocket(client->getSocket(), "User limit can't be negative."));
 		channel->setUserLimit(limit);
 	}
-	
 }
 
 // on critical error, send ERROR and disconnect
