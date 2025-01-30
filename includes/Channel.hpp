@@ -17,12 +17,13 @@ class Channel
 	
 	bool					password_required;
 	bool					invitation_mode;
+	bool					can_change_topic;
 	unsigned int			max_users;
 
   public:
 	// Constructors:
 	Channel(std::string name)
-		: name(name) , max_users(__INT_MAX__){};
+		: name(name) ,  password_required(false), invitation_mode(false), can_change_topic(true), max_users(__INT_MAX__){};
 
 	// Getter and setters:
 	std::string				getName() const;
@@ -31,6 +32,8 @@ class Channel
 	std::vector<Client *> 	&getOperators();
 	unsigned int			getMaxUsers() const;
 	bool 					findInvite(std::string name);
+	bool 					CanEveryoneChangeTopic() const;
+	void					SetEveryoneChangeTopic(bool state);
 	bool 					isInvitationMode() const;
 	void 					setInvitationMode(bool state);
 	void 					setUserLimit(unsigned int limit);

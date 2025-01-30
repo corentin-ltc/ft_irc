@@ -28,6 +28,16 @@ void Channel::setPasswordRequired(bool state)
 	password_required = state;
 }
 
+bool Channel::CanEveryoneChangeTopic() const
+{
+	return can_change_topic;
+}
+
+void Channel::SetEveryoneChangeTopic(bool state)
+{
+	can_change_topic = state;
+}
+
 void Channel::setPassword(std::string new_password)
 {
 	password = new_password;
