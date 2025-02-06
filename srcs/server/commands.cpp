@@ -327,10 +327,13 @@ void Server::mode(Client *client, std::string cmd)
 		newOperator = channel->findUser(new_client);
 		if (!newOperator)
 			return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getNickname(), new_client, channel->getName())));
-		for (std::vector<Client *>::iterator it = channel->getOperators().begin(); it != channel->getOperators().end(); it++)
+		for (std::vector<Client *>::iterator it = channel->getOperators().begin(); it != channel->getOperators().end(); ++it)
 		{
-			if (*it == newOperator)
-				channel->getOperators().erase(it);
+		    if (*it == newOperator)
+		    {
+		        channel->getOperators().erase(it);
+		        break;
+		    }
 		}
 	}
 	else if (flag == "+o")
