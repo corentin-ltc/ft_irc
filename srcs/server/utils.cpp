@@ -42,10 +42,16 @@ void Server::printInfos() const
 	std::cout << YEL << "Clients connected : " << WHI << clients.size() << std::endl;
 	for (size_t i = 0; i < clients.size(); i++)
 		std::cout << clients[i]->getClientString() << ", socket : " << clients[i]->getSocket()
-				  << ", registered : " << (clients[i]->isRegistered() ? "Yes" : "No")
-				  << ", channels: " << clients[i]->getChannelsString() << std::endl;
+				  << ", registered : " << (clients[i]->isRegistered() ? "Yes" : "No") << ", channels: " << clients[i]->getChannelsString()
+				  << std::endl;
 	std::cout << WHI << "----------------" << YEL << " CHANNELS INFO" << WHI << " ----------------" << std::endl;
 	std::cout << YEL << "Channels count : " << WHI << channels.size() << std::endl;
 	for (size_t i = 0; i < channels.size(); i++)
 		std::cout << channels[i]->getName() << ", clients connected : " << channels[i]->getUsersString() << std::endl;
+}
+
+void Server::log(std::string key, std::string message) const
+{
+	if (SHOW_LOGS)
+		std::cout << YEL << "[" << key << "]: " << message << WHI << std::endl;
 }
