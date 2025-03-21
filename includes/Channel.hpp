@@ -6,50 +6,52 @@
 
 class Channel
 {
-  private:
-	// unsigned int            max_users;
-	std::string name;
-	std::string password;
-	std::string topic;
-	std::vector<Client *> users;
-	std::vector<Client *> operators;
-	std::vector<std::string> invites;
-	
-	bool					password_required;
-	bool					invitation_mode;
-	bool					can_change_topic;
-	unsigned int			max_users;
+	private:
+		// unsigned int            max_users;
+		std::string				 name;
+		std::string				 password;
+		std::string				 topic;
+		std::vector<Client *>	 users;
+		std::vector<Client *>	 operators;
+		std::vector<std::string> invites;
 
-  public:
-	// Constructors:
-	Channel(std::string name)
-		: name(name) ,  password_required(false), invitation_mode(false), can_change_topic(true), max_users(__INT_MAX__){};
+		bool					 password_required;
+		bool					 invitation_mode;
+		bool					 can_change_topic;
+		unsigned int			 max_users;
 
-	// Getter and setters:
-	std::string				getName() const;
-	std::string				getPassword() const;
-	std::vector<Client *> 	&getUsers();
-	std::vector<Client *> 	&getOperators();
-	unsigned int			getMaxUsers() const;
-	bool 					findInvite(std::string name);
-	bool 					CanEveryoneChangeTopic() const;
-	void					SetEveryoneChangeTopic(bool state);
-	bool 					isInvitationMode() const;
-	void 					setInvitationMode(bool state);
-	void 					setUserLimit(unsigned int limit);
-	void 					setPasswordRequired(bool state);
-	bool 					isPasswordRequired() const;
-	void 					setPassword(std::string new_password);
+	public:
+		// Constructors:
+		Channel(std::string name) : name(name), password_required(false), invitation_mode(false), can_change_topic(true), max_users(__INT_MAX__) {};
 
-	void addInvite(std::string name);
+		// Getter and setters:
+		std::string			   getName() const;
+		std::string			   getPassword() const;
+		std::vector<Client *> &getUsers();
+		std::vector<Client *> &getOperators();
+		unsigned int		   getMaxUsers() const;
+		bool				   findInvite(std::string name);
+		bool				   CanEveryoneChangeTopic() const;
+		void				   SetEveryoneChangeTopic(bool state);
+		bool				   isInvitationMode() const;
+		void				   setInvitationMode(bool state);
+		void				   setUserLimit(unsigned int limit);
+		void				   setPasswordRequired(bool state);
+		bool				   isPasswordRequired() const;
+		void				   setPassword(std::string new_password);
 
-  public: // Members functions
-	void addUser(Client *client);
-	std::string getUsersString();
-	Client *findUser(Client *client);
-	Client *findUser(std::string nickname);
-	bool isOperator(const Client *client) const;
-	void setTopic(Client *client, std::string t);
-	void sendToChannel(std::string message);
-	void sendToChannel(std::string message, Client *sender);
+		void				   addInvite(std::string name);
+
+	public: // Members functions
+		void		addUser(Client *client);
+		std::string getUsersString() const;
+		std::string getModeString() const;
+		Client	   *findUser(Client *client);
+		Client	   *findUser(std::string nickname);
+		bool		isOperator(const Client *client) const;
+		void		addOperator(std::string nickname);
+		void		deleteOperator(std::string nickname);
+		void		setTopic(Client *client, std::string t);
+		void		sendToChannel(std::string message);
+		void		sendToChannel(std::string message, Client *sender);
 };

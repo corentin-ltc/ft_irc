@@ -37,7 +37,7 @@ void Server::handleClient(int client_socket)
 bool Server::readClient(Client *client)
 {
 	char buffer[1024];
-	int bytes_read = read(client->getSocket(), &buffer, sizeof(buffer));
+	int	 bytes_read = read(client->getSocket(), &buffer, sizeof(buffer));
 	if (-1 == bytes_read)
 		throw std::runtime_error("read");
 	if (0 == bytes_read)

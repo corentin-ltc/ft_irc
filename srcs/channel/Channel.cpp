@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+
 #include "Server.hpp"
 #include "ft_irc.hpp"
 
@@ -11,7 +12,6 @@ unsigned int Channel::getMaxUsers() const
 {
 	return (max_users);
 }
-
 
 bool Channel::isInvitationMode() const
 {
@@ -90,11 +90,11 @@ void Channel::setTopic(Client *client, std::string t)
 	this->topic = t;
 }
 
-std::string Channel::getUsersString()
+std::string Channel::getUsersString() const
 {
 	std::string list = "";
 
-	for (std::vector<Client *>::iterator it = users.begin(); it != users.end(); it++)
+	for (std::vector<Client *>::const_iterator it = users.begin(); it != users.end(); it++)
 	{
 		list.append((*it)->getNickname());
 		if (it + 1 != users.end())
@@ -125,6 +125,8 @@ Client *Channel::findUser(std::string nickname)
 
 bool Channel::isOperator(const Client *client) const
 {
+	if (client->isGlobalOperator())
+		return (true);
 	for (size_t i = 0; i < operators.size(); i++)
 	{
 		if (operators[i] == client)
@@ -159,4 +161,21 @@ bool Channel::findInvite(std::string name)
 void Channel::addInvite(std::string name)
 {
 	this->invites.push_back(name);
+}
+
+void Channel::addOperator(std::string nickname)
+{
+	Client *client = findUser(nickname);
+	if (client)
+		operators.push_back(client);
+}
+
+void Channel::deleteOperator(std::string nickname)
+{
+	for (std::vector<Client *>::iterator it = operators.begin(); it != operators.end(); it++)
+		if ((*it)->getNickname() == nickname)
+		{
+			operators.erase(it);
+			break;
+		}
 }

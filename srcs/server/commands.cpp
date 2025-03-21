@@ -100,8 +100,8 @@ void Server::user(Client *client, std::string cmd)
 
 void Server::join(Client *client, std::string cmd)
 {
-	std::string channels_string = goto_next_word(cmd);
-	std::string keys_string = goto_next_word(cmd);
+	std::string				 channels_string = goto_next_word(cmd);
+	std::string				 keys_string = goto_next_word(cmd);
 	std::vector<std::string> channel_names;
 	std::vector<std::string> keys;
 
@@ -120,7 +120,7 @@ void Server::join(Client *client, std::string cmd)
 			continue;
 		}
 		std::string channel_name = chanToLower(channel_names[i]);
-		Channel *channel = findChannel(channel_name);
+		Channel	   *channel = findChannel(channel_name);
 		if (channel == NULL) // create new channel and set operator
 		{
 			channels.push_back(new Channel(channel_name));
@@ -166,14 +166,14 @@ void Server::privmsg(Client *client, std::string cmd)
 		if (std::string("&#+!").find(targets[i][0]) != std::string::npos) // target is a channel
 		{
 			Channel *channel_target = findChannel(targets[i]);
-			if (channel_target == NULL) // chan does not exist
+			if (channel_target == NULL)									  // chan does not exist
 				sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getClientString(), targets[i]));
-			else if (channel_target->findUser(client) == NULL) // client not in chan
+			else if (channel_target->findUser(client) == NULL)			  // client not in chan
 				sendToSocket(client->getSocket(), ERR_CANNOTSENDTOCHAN(client->getClientString(), targets[i]));
-			else // send reply
+			else														  // send reply
 				channel_target->sendToChannel(RPL_PRIVMSG(client->getClientString(), targets[i], text), client);
 		}
-		else // target is a client
+		else															  // target is a client
 		{
 			Client *client_target = findClient(targets[i]);
 			if (client_target == NULL)
@@ -293,77 +293,60 @@ void Server::topic(Client *client, std::string cmd)
 
 void Server::mode(Client *client, std::string cmd)
 {
-	int flag_index = cmd.find_first_of(" ");
-	std::string flag = cmd.substr(flag_index + 1, 2);
-	if (cmd[0] != '#') // set mode for users are not handled
-		return;
-	Channel *channel = findChannel(cmd.substr(0, flag_index));
-	if (!channel)
-		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), cmd.substr(0, flag_index))));
-	if (flag == "+i")
-		channel->setInvitationMode(true); 
-	else if (flag == "-i")
-		channel->setInvitationMode(false);
-	else if (flag == "-k")
-		channel->setPasswordRequired(false);
-	else if (flag == "+k")
+	log("MODE", "Channel existence verification");
+	std::string target_name = goto_next_word(cmd);
+	Channel	   *channel = findChannel(target_name);
+	if (channel == NULL)
+		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), target_name)));
+
+	// modestring verification (we dont handle sending current mode on empty modestring)
+	log("MODE", "Modestring presence verification");
+	if (cmd.empty())
+		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("MODE"))));
+	// operator verification
+	log("MODE", "Channel operator verification");
+	if (channel->isOperator(client) == false)
+		return (sendToSocket(client->getSocket(), ERR_CHANOPRIVISNEEDED(client->getNickname(), channel->getName())));
+
+	// modestring parsing
+	log("MODE", "Modestring parsing");
+	std::string						   modestring = goto_next_word(cmd);
+	std::string::iterator			   modestring_it = modestring.begin();
+	std::vector<std::string>		   args = split(cmd, ',');
+	std::vector<std::string>::iterator current_arg = args.begin();
+	char							   sign = '+';
+
+	for (; modestring_it != modestring.end(); modestring_it++)
 	{
-		std::string new_password = cmd.substr(flag_index + 4);
-		if (new_password.size() == 0)
-			return;// not enough arguments
-		channel->setPasswordRequired(true);
-		channel->setPassword(new_password);
-	}
-	else if (flag == "-t")
-		channel->SetEveryoneChangeTopic(true);
-	else if (flag == "+t")
-		channel->SetEveryoneChangeTopic(false);
-	else if (flag == "-o")
-	{
-		Client *newOperator;
-		std::string new_client = cmd.substr(flag_index + 4);
-		if (new_client.size() == 0)
-			return;// not enough arguments
-		newOperator = channel->findUser(new_client);
-		if (!newOperator)
-			return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getNickname(), new_client, channel->getName())));
-		for (std::vector<Client *>::iterator it = channel->getOperators().begin(); it != channel->getOperators().end(); ++it)
+		switch (*modestring_it)
 		{
-		    if (*it == newOperator)
-		    {
-		        channel->getOperators().erase(it);
-		        break;
-		    }
-		}
-	}
-	else if (flag == "+o")
-	{
-		Client *newOperator;
-		std::string new_client = cmd.substr(flag_index + 4);
-		if (new_client.size() == 0)
-			return;// not enough arguments
-		newOperator = channel->findUser(new_client);
-		if (!newOperator)
-			return (sendToSocket(client->getSocket(), ERR_USERNOTINCHANNEL(client->getNickname(), new_client, channel->getName())));
-		channel->getOperators().push_back(newOperator);
-	}
-	else if (flag == "-l")
-		channel->setUserLimit(__INT_MAX__);
-	else if (flag == "+l")
-	{
-		std::string limit_str = cmd.substr(flag_index + 4);
-		if (limit_str.size() == 0)
-			return (sendToSocket(client->getSocket(), "Not enough parameter for user limit."));
-		for (std::string::iterator it = limit_str.begin(); it != limit_str.end(); it++)
-		{
-			std::cout << limit_str << "\n";
-			if (!isdigit(*it))
-				return (sendToSocket(client->getSocket(), "Wrong parameter for user limit."));
-		}
-		int limit = atoi(limit_str.c_str());
-		if (limit <= 0)
-				return (sendToSocket(client->getSocket(), "User limit can't be negative."));
-		channel->setUserLimit(limit);
+			case '+': sign = '+'; break;
+			case '-': sign = '-'; break;
+			case 'i': channel->setInvitationMode(sign == '+'); break;
+			case 't': channel->SetEveryoneChangeTopic(sign == '+'); break;
+			case 'k':
+				channel->setPasswordRequired(sign == '+');
+				if (current_arg != args.end())
+					channel->setPassword(*current_arg++);
+				break;
+			case 'o':
+				if (current_arg != args.end())
+					sign == '+' ? channel->addOperator(*current_arg++) : channel->deleteOperator(*current_arg++);
+				break;
+			case 'l':
+				if (sign == '-' || current_arg != args.end())
+				{
+					channel->setUserLimit(__INT_MAX__);
+					break;
+				}
+				// check that there is only numbers
+				for (std::string::iterator it = current_arg->begin(); it != current_arg->end(); it++)
+					if (!isdigit(*it))
+						break;
+				channel->setUserLimit(atoi(current_arg++->c_str()));
+				break;
+			default:; // send ERR_UMODEUNKNOWNFLAG(501)
+		};
 	}
 }
 
