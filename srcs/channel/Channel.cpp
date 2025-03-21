@@ -179,3 +179,15 @@ void Channel::deleteOperator(std::string nickname)
 			break;
 		}
 }
+
+std::string Channel::getModeString() const
+{
+	std::string modestring;
+
+	modestring.append(isPasswordRequired() ? "+k" : "-k");
+	modestring.append(CanEveryoneChangeTopic() ? "+t" : "-t");
+	modestring.append(isInvitationMode() ? "+i" : "-i");
+	modestring.append(max_users != __INT_MAX__ ? "+l" : "-l");
+
+	return (modestring);
+}
