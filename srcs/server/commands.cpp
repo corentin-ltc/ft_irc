@@ -263,16 +263,6 @@ void Server::invite(Client *client, std::string cmd)
 		channel->addInvite(target_name);
 }
 
-/*TODO:
- - Check args count (1 mini) (ERR_NEEDMOREPARAMS) (TOPIC #chan)
- - Check if the channel exists (ERR_NOSUCHCHANNEL)
- - Check if the client is in the channel (ERR_NOTONCHANNEL)
- - If only 1 argument, just RPL_TOPIC or RPL_NOTOPIC and leave
- - Else, consider everything after ":" as the new topic, if empty topic must be cleared  (TOPIC #chan :new topic)
- - Check if mode (+t) is on, if yes check if client is allowed (ERR_CHANOPRIVISNEEDED)
- - SendToChannel() RPL_TOPIC to update on client-side
- - Channel->setTopic() to update on server-side
- */
 void Server::topic(Client *client, std::string cmd)
 {
 	std::string name = client->getNickname();
@@ -299,10 +289,10 @@ void Server::mode(Client *client, std::string cmd)
 	if (channel == NULL)
 		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), target_name)));
 
-	// modestring verification (we dont handle sending current mode on empty modestring)
+	// modestring verification (sends current mode if no modestring is given)
 	log("MODE", "Modestring presence verification");
 	if (cmd.empty())
-		return (sendToSocket(client->getSocket(), ERR_NEEDMOREPARAMS(std::string("MODE"))));
+		return (sendToSocket(client->getSocket(), RPL_CHANNELMODEIS(client->getNickname(), channel->getName(), channel->getModeString())));
 	// operator verification
 	log("MODE", "Channel operator verification");
 	if (channel->isOperator(client) == false)
@@ -345,9 +335,10 @@ void Server::mode(Client *client, std::string cmd)
 						break;
 				channel->setUserLimit(atoi(current_arg++->c_str()));
 				break;
-			default:; // send ERR_UMODEUNKNOWNFLAG(501)
+			default: sendToSocket(client->getSocket(), ERR_UMODEUNKNOWNFLAG(client->getNickname(), *modestring_it)); // send ERR_UMODEUNKNOWNFLAG(501)
 		};
 	}
+	sendToSocket(client->getSocket(), RPL_CHANNELMODEIS(client->getNickname(), channel->getName(), channel->getModeString()));
 }
 
 // on critical error, send ERROR and disconnect
