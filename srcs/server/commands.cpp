@@ -305,6 +305,7 @@ void Server::mode(Client *client, std::string cmd)
 	std::vector<std::string>		   args = split(cmd, ',');
 	std::vector<std::string>::iterator current_arg = args.begin();
 	char							   sign = '+';
+	int								   limit_number = 0;
 
 	for (; modestring_it != modestring.end(); modestring_it++)
 	{
@@ -318,22 +319,24 @@ void Server::mode(Client *client, std::string cmd)
 				channel->setPasswordRequired(sign == '+');
 				if (current_arg != args.end())
 					channel->setPassword(*current_arg++);
+				else
+					channel->setPasswordRequired(false);
 				break;
 			case 'o':
 				if (current_arg != args.end())
 					sign == '+' ? channel->addOperator(*current_arg++) : channel->deleteOperator(*current_arg++);
 				break;
 			case 'l':
-				if (sign == '-' || current_arg != args.end())
+				log("MODE +l", "Checking limit");
+				if (sign == '-' || current_arg == args.end())
 				{
 					channel->setUserLimit(__INT_MAX__);
 					break;
 				}
-				// check that there is only numbers
-				for (std::string::iterator it = current_arg->begin(); it != current_arg->end(); it++)
-					if (!isdigit(*it))
-						break;
-				channel->setUserLimit(atoi(current_arg++->c_str()));
+				limit_number = atoi(current_arg->c_str());
+				current_arg++;
+				if (limit_number > 0)
+					channel->setUserLimit(limit_number);
 				break;
 			default: sendToSocket(client->getSocket(), ERR_UMODEUNKNOWNFLAG(client->getNickname(), *modestring_it)); // send ERR_UMODEUNKNOWNFLAG(501)
 		};
