@@ -7,7 +7,7 @@ CC = c++
 FLAGS = -Wall -Wextra -Werror # errors
 FLAGS += -std=c++98 # c++ version 
 FLAGS += #-Wshadow #-pedantic # syntax helper (can remove)
-FLAGS += -g3 # opti
+FLAGS += #-g3 # debug
 # FLAGS += -fsanitize=address,leak,undefined #sanitize
 
 INCLUDES =	includes
