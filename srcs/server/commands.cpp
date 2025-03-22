@@ -288,7 +288,8 @@ void Server::mode(Client *client, std::string cmd)
 	Channel	   *channel = findChannel(target_name);
 	if (channel == NULL)
 		return (sendToSocket(client->getSocket(), ERR_NOSUCHCHANNEL(client->getNickname(), target_name)));
-
+	if (target_name[0] != '#')
+		return;
 	// modestring verification (sends current mode if no modestring is given)
 	log("MODE", "Modestring presence verification");
 	if (cmd.empty())
